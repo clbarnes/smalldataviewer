@@ -5,9 +5,6 @@ from __future__ import division
 
 import logging
 import os
-from argparse import ArgumentParser
-from collections import namedtuple
-from contextlib import contextmanager
 
 import functools
 import matplotlib.pyplot as plt
@@ -73,8 +70,9 @@ class DataViewer(object):
         self._update()
         self.fig.canvas.mpl_connect('scroll_event', self._onscroll)
 
-    def show(self, block=False):
-        self.fig.show(block)
+    def show(self):
+        """Show the viewer. Note that the viewer will no longer scroll if the script ends."""
+        self.fig.show()
 
     def _onscroll(self, event):
         step = 1
@@ -181,6 +179,8 @@ def dataviewer_from_file(path, internal_path=None, ftype=None, offset=None, shap
     """
     Instantiate a DataViewer from a path to a file in a variety of formats. Should be used as a context manager.
 
+    Note: if this is not assigned to a variable, it may be garbage collected before plt.show() is called.
+
     Parameters
     ----------
     path : str or PathLike
@@ -188,6 +188,10 @@ def dataviewer_from_file(path, internal_path=None, ftype=None, offset=None, shap
     internal_path : str or None
         For dataset file types which need it, an internal path to the dataset
     ftype : str or None
+    offset : array-like or None
+        Offset of ROI from (0, 0, 0). By default, start at (0, 0, 0)
+    shape : array-like or None
+        Shape of ROI. By default, take the whole array.
     kwargs
         Passed to DataViewer constructor after ``volume``
 
@@ -213,6 +217,8 @@ def offset_shape_to_slicing(offset=None, shape=None):
 
 
 def _main():
+    from argparse import ArgumentParser
+
     parser = ArgumentParser()
     parser.add_argument('path',
                         help='Path to HDF5, N5, zarr, npy or npz file containing a 3D dataset')
@@ -227,16 +233,17 @@ def _main():
                              'Default "zyx".')
     parser.add_argument('-f', '--offset', type=str_to_ints, help='3D offset of ROI from (0, 0, 0) in pixels')
     parser.add_argument('-s', '--shape', type=str_to_ints, help='3D shape of ROI in pixels')
-    parser.add_argument('-v', '--verbose', action='count', help='Increase output verbosity')
+    parser.add_argument('-v', '--verbose', action='count', help='Increase logging verbosity')
 
     parsed_args = parser.parse_args()
 
     level = {
-        0: logging.WARNING,
+        None: logging.WARNING,
         1: logging.INFO,
         2: logging.DEBUG,
-    }
-    logging.basicConfig(level=level.get(parsed_args.verbose, logging.NOTSET))
+    }.get(parsed_args.verbose, logging.NOTSET)
+
+    logging.basicConfig(level=level)
 
     dv = dataviewer_from_file(
         parsed_args.path, parsed_args.internal_path, parsed_args.type,
