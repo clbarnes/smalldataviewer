@@ -71,7 +71,7 @@ class DataViewer(object):
         self.fig.canvas.mpl_connect('scroll_event', self._onscroll)
 
     def show(self):
-        """Show the viewer. Note that the viewer will no longer scroll if the script ends."""
+        """Show the viewer. Note that the viewer will no longer scroll if the script ends: use ``plt.show`` for that"""
         self.fig.show()
 
     def _onscroll(self, event):
