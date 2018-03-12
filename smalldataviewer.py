@@ -3,6 +3,7 @@
 
 from __future__ import division
 
+import json
 import logging
 import os
 
@@ -11,6 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 __all__ = ['DataViewer', 'dataviewer_from_file']
+__version__ = '0.2.0'
 
 
 logger = logging.getLogger(__name__)
@@ -149,6 +151,17 @@ def _read_npz(path, internal_path, slicing):
         return np.asarray(f[internal_path][slicing])
 
 
+def _read_json(path, internal_path, slicing):
+    with open(path) as f:
+        obj = json.load(f)
+
+    if internal_path:
+        obj = obj[internal_path]
+
+    return np.asarray(obj)[slicing]
+
+
+
 FILE_CONSTRUCTORS = {
     'n5': _read_n5,
     'hdf': _read_hdf5,
@@ -157,7 +170,8 @@ FILE_CONSTRUCTORS = {
     'zarr': _read_zarr,
     'zr': _read_zarr,
     'npy': _read_npy,
-    'npz': _read_npz
+    'npz': _read_npz,
+    'json': _read_json
 }
 
 
@@ -221,8 +235,10 @@ def _main():
 
     parser = ArgumentParser()
     parser.add_argument('path',
-                        help='Path to HDF5, N5, zarr, npy or npz file containing a 3D dataset')
-    parser.add_argument('-i', '--internal_path', help='Internal path of dataset inside HDF5, N5, zarr or npz file')
+                        help='Path to HDF5, N5, zarr, npy, npz or JSON file containing a 3D dataset')
+    parser.add_argument('-i', '--internal_path',
+                        help='Internal path of dataset inside HDF5, N5, zarr or npz file. If JSON, assumes the outer'
+                             'object is a dict, and internal_path is the key of the array')
     parser.add_argument('-t', '--type', help='Dataset file type. Inferred from extension if not given.')
     parser.add_argument('-o', '--order', default='zyx',
                         help='Order of spatial axes for axis labelling purposes. Data is not transposed: '

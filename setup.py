@@ -10,7 +10,7 @@ with open(os.path.join(here, 'README.md')) as f:
 
 setup(
     name='smalldataviewer',
-    version='0.1.0',
+    version='0.2.0',
     py_modules=['smalldataviewer'],
     url='https://github.com/clbarnes/smalldataviewer',
     license='MIT',
