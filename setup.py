@@ -11,8 +11,8 @@ with open(os.path.join(here, 'README.md')) as f:
 
 extras_require = {
     'hdf5': ['h5py'],
-    'n5': ['z5py'],
-    'zarr': ['z5py']
+    # 'n5': ['z5py'],  # n.b. must be installed with conda
+    # 'zarr': ['z5py'],  # n.b. must be installed with conda
 }
 
 full_requires = set(chain.from_iterable(extras_require.values()))
