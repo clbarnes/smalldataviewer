@@ -247,8 +247,11 @@ def _main():
                              'dimension 2 will be on the left-right axis, and'
                              'dimension 3, if it exists, will be used as the colour channels. '
                              'Default "zyx".')
-    parser.add_argument('-f', '--offset', type=str_to_ints, help='3D offset of ROI from (0, 0, 0) in pixels')
-    parser.add_argument('-s', '--shape', type=str_to_ints, help='3D shape of ROI in pixels')
+    parser.add_argument('-f', '--offset', type=str_to_ints,
+                        help='3D offset of ROI from (0, 0, 0) in pixels, '
+                             'in the form "<scroll>,<vertical>,<horizontal>"')
+    parser.add_argument('-s', '--shape', type=str_to_ints,
+                        help='3D shape of ROI in pixels, in the form "<scroll>,<vertical>,<horizontal>"')
     parser.add_argument('-v', '--verbose', action='count', help='Increase logging verbosity')
 
     parsed_args = parser.parse_args()
