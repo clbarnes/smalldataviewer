@@ -1,16 +1,14 @@
 import os
-from distutils.core import setup
+from setuptools import setup
 from itertools import chain
 
 here = os.path.abspath(os.path.dirname(__file__))
-with open(os.path.join(here, 'requirements.txt')) as f:
-    requirements = [line.strip() for line in f]
 
-with open(os.path.join(here, 'README.md')) as f:
+with open(os.path.join(here, 'README.rst')) as f:
     readme = f.read()
 
 extras_require = {
-    'hdf5': ['h5py'],
+    'hdf5': ['h5py>=2.0'],
     # 'n5': ['z5py'],  # n.b. must be installed with conda
     # 'zarr': ['z5py'],  # n.b. must be installed with conda
 }
@@ -24,7 +22,10 @@ setup(
     py_modules=['smalldataviewer'],
     url='https://github.com/clbarnes/smalldataviewer',
     license='MIT',
-    install_requires=requirements,
+    install_requires=[
+        'numpy>=1.7.1',
+        'matplotlib>=2.0'
+    ],
     extras_require=extras_require,
     author='Chris L Barnes',
     author_email='barnesc@janelia.hhmi.org',
@@ -32,6 +33,7 @@ setup(
     long_description=readme,
     entry_points={'console_scripts': ['smalldataviewer = smalldataviewer:_main']},
     classifiers=[
+        'Development Status :: 4 - Beta',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3.6',
@@ -39,4 +41,6 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 2.7',
     ],
+    keywords='image volume 3d',
+    python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, <4'
 )
