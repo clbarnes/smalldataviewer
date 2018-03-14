@@ -161,7 +161,6 @@ def _read_json(path, internal_path, slicing):
     return np.asarray(obj)[slicing]
 
 
-
 FILE_CONSTRUCTORS = {
     'n5': _read_n5,
     'hdf': _read_hdf5,
@@ -191,7 +190,7 @@ def read_file(path, internal_path=None, ftype=None, offset=None, shape=None):
 
 def dataviewer_from_file(path, internal_path=None, ftype=None, offset=None, shape=None, **kwargs):
     """
-    Instantiate a DataViewer from a path to a file in a variety of formats. Should be used as a context manager.
+    Instantiate a DataViewer from a path to a file in a variety of formats.
 
     Note: if this is not assigned to a variable, it may be garbage collected before plt.show() is called.
 
@@ -199,12 +198,13 @@ def dataviewer_from_file(path, internal_path=None, ftype=None, offset=None, shap
     ----------
     path : str or PathLike
         Path to dataset file
-    internal_path : str or None
+    internal_path : str, optional
         For dataset file types which need it, an internal path to the dataset
-    ftype : str or None
-    offset : array-like or None
+    ftype : {'n5', 'hdf5', 'zarr', 'npy', 'npz', 'json'}, optional
+        File type. By default, infer from path extension.
+    offset : array-like, optional
         Offset of ROI from (0, 0, 0). By default, start at (0, 0, 0)
-    shape : array-like or None
+    shape : array-like, optional
         Shape of ROI. By default, take the whole array.
     kwargs
         Passed to DataViewer constructor after ``volume``
