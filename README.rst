@@ -16,7 +16,7 @@ Installation
 
 .. code:: bash
 
-    pip install git+https://github.com/clbarnes/smalldataviewer
+    pip install smalldataviewer
 
 Some file types require additional dependencies:
 
@@ -37,7 +37,7 @@ Usage
 As executable
 ~~~~~~~~~~~~~
 
-.. code:: bash
+.. code::
 
     usage: smalldataviewer [-h] [-i INTERNAL_PATH] [-t TYPE] [-o ORDER]
                            [-f OFFSET] [-s SHAPE] [-v]

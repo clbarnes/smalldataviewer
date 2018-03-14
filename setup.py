@@ -1,11 +1,14 @@
 import os
-from setuptools import setup
+from setuptools import setup, find_packages
 from itertools import chain
 
 here = os.path.abspath(os.path.dirname(__file__))
 
 with open(os.path.join(here, 'README.rst')) as f:
     readme = f.read()
+
+with open(os.path.join(here, 'smalldataviewer', 'version.py')) as f:
+    exec(f.read())
 
 extras_require = {
     'hdf5': ['h5py>=2.0'],
@@ -18,8 +21,8 @@ extras_require['full'] = sorted(full_requires)
 
 setup(
     name='smalldataviewer',
-    version='0.2.0',
-    py_modules=['smalldataviewer'],
+    version=__version__,
+    packages=find_packages(),
     url='https://github.com/clbarnes/smalldataviewer',
     license='MIT',
     install_requires=[
@@ -31,7 +34,7 @@ setup(
     author_email='barnesc@janelia.hhmi.org',
     description='Command-line tool and python library for visualising small 3D datasets',
     long_description=readme,
-    entry_points={'console_scripts': ['smalldataviewer = smalldataviewer:_main']},
+    entry_points={'console_scripts': ['smalldataviewer = smalldataviewer.__main__:_main']},
     classifiers=[
         'Development Status :: 4 - Beta',
         'License :: OSI Approved :: MIT License',
@@ -42,5 +45,5 @@ setup(
         'Programming Language :: Python :: 2.7',
     ],
     keywords='image volume 3d',
-    python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, <4'
+    python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*'
 )
