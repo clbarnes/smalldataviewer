@@ -2,14 +2,9 @@ smalldataviewer
 ===============
 
 Simple matplotlib-based tool for viewing small amounts of 3D image data;
-helpful for debugging.
+helpful for debugging. Supports python 2.7 and 3.4+.
 
-Notes
------
-
-Due to the circumstances in which matplotlib holds open figure windows,
-and stops updates during blocks, the entire array must be read into
-memory before it can be viewed. It is a *small*\ dataviewer after all...
+Adapted from `this matplotlib recipe <https://matplotlib.org/gallery/animation/image_slices_viewer.html>`_.
 
 Installation
 ------------
@@ -44,14 +39,15 @@ As executable
                            path
 
     positional arguments:
-      path                  Path to HDF5, N5, zarr, npy or npz file containing a
-                            3D dataset
+      path                  Path to HDF5, N5, zarr, npy, npz or JSON file
+                            containing a 3D dataset
 
     optional arguments:
       -h, --help            show this help message and exit
       -i INTERNAL_PATH, --internal_path INTERNAL_PATH
                             Internal path of dataset inside HDF5, N5, zarr or npz
-                            file
+                            file. If JSON, assumes the outerobject is a dict, and
+                            internal_path is the key of the array
       -t TYPE, --type TYPE  Dataset file type. Inferred from extension if not
                             given.
       -o ORDER, --order ORDER
@@ -62,12 +58,21 @@ As executable
                             anddimension 3, if it exists, will be used as the
                             colour channels. Default "zyx".
       -f OFFSET, --offset OFFSET
-                            3D offset of ROI from (0, 0, 0) in pixels
+                            3D offset of ROI from (0, 0, 0) in pixels, in the form
+                            "<scroll>,<vertical>,<horizontal>"
       -s SHAPE, --shape SHAPE
-                            3D shape of ROI in pixels
-      -v, --verbose         Increase output verbosity
+                            3D shape of ROI in pixels, in the form
+                            "<scroll>,<vertical>,<horizontal>"
+      -v, --verbose         Increase logging verbosity
 
-    >>> smalldataviewer.py my_data.hdf5 -i /my_group/my_volume
+.. code:: bash
+
+    smalldataviewer my_data.hdf5 -i /my_group/my_volume
+
+Note: because of the circumstances under which python holds file descriptors open,
+and under which matplotlib blocks, the executable form reads the data into memory
+in its entirety. If your data are too big for this, look at small chunks with the
+oFfset and Shape options.
 
 As library
 ~~~~~~~~~~
@@ -76,19 +81,14 @@ As library
 
     from smalldataviewer import DataViewer, dataviewer_from_file
 
-    # data can be anything which slices like a np.ndarray (e.g. h5py dataset)
     import numpy as np
     data = np.random.random((30, 100, 100))
 
     viewer = DataViewer(data)
     viewer.show()  # or matplotlib.pyplot.show()
 
-    viewer2 = dataviewer_from_file(dataviewer, "my_data.npz", "volume") as viewer2:
+    viewer2 = dataviewer_from_file(dataviewer, "my_data.npz", "volume")
     viewer2.show()
 
-N.B.
-~~~~
-
-Because of the circumstances under which python holds file descriptors open and
-matplotlib blocks, file-based volumes may need to read into numpy arrays to be
-scrolled through if the ``.show()`` is at the end of the script.
+Note: ``dataviewer_from_file`` reads the requested data into memory. ``DataViewer``
+does not, by default. However, you may need to, depending on the rest of your script.

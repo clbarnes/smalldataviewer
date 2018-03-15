@@ -23,7 +23,7 @@ def _main():
                              'object is a dict, and internal_path is the key of the array')
     parser.add_argument('-t', '--type', help='Dataset file type. Inferred from extension if not given.')
     parser.add_argument('-o', '--order', default='zyx',
-                        help='Order of spatial axes for axis labelling purposes. Data is not transposed: '
+                        help='Order of non-channel axes for axis labelling purposes (data is not transposed): '
                              'dimension 0 will be scrolled through, '
                              'dimension 1 will be on the up-down axis, '
                              'dimension 2 will be on the left-right axis, and'
