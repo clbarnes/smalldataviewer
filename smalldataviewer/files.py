@@ -95,8 +95,16 @@ FILE_CONSTRUCTORS = {
 
 
 def offset_shape_to_slicing(offset=None, shape=None):
-    slices = tuple(slice(o, s) for o, s in zip(offset or (None, None, None), shape or (None, None, None)))
-    return slices
+    slices = []
+    for o, s in zip(offset or (None, None, None), shape or (None, None, None)):
+        if s is None:
+            end = None
+        elif o is None:
+            end = s
+        else:
+            end = o + s
+        slices.append(slice(o, end))
+    return tuple(slices)
 
 
 def read_file(path, internal_path=None, ftype=None, offset=None, shape=None):
