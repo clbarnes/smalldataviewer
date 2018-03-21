@@ -1,3 +1,6 @@
+.. image:: https://travis-ci.org/clbarnes/smalldataviewer.svg?branch=master
+    :target: https://travis-ci.org/clbarnes/smalldataviewer
+
 smalldataviewer
 ===============
 
