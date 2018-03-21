@@ -1,5 +1,8 @@
 numpy==1.14.2
 matplotlib==2.2.0
 h5py==2.7.1
+mock==2.0.0; python_version < "3.3"
 wheel
 twine
+pytest
+tox

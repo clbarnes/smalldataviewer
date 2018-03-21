@@ -4,7 +4,16 @@ install:
 install-full:
 	pip install .[full]
 
-clean: clean-build clean-pyc
+install-dev:
+	pip install -r requirements.txt && pip install -e .[full]
+
+test:
+	pytest
+
+test-all:
+	tox
+
+clean: clean-build clean-pyc clean-test
 
 clean-build: ## remove build artifacts
 	rm -f MANIFEST
@@ -19,6 +28,10 @@ clean-pyc: ## remove Python file artifacts
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f {} +
 	find . -name '__pycache__' -exec rm -fr {} +
+
+clean-test:
+	rm -rf .pytest_cache
+	rm -rf .tox
 
 dist: clean ## builds source and wheel package
 	python setup.py sdist

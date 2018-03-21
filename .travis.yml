@@ -1,0 +1,12 @@
+language: python
+python:
+  - "3.6"
+  - "3.5"
+  - "3.4"
+  - "2.7"
+install:
+  - make install-dev
+before_script:
+  - pip install tox-travis
+script:
+  - tox
