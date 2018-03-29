@@ -6,3 +6,5 @@ wheel
 twine
 pytest
 tox
+pillow==5.0.0
+tifffile==0.14.0

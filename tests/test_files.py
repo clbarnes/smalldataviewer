@@ -7,41 +7,10 @@ try:
 except ImportError:
     import mock
 
-from smalldataviewer.files import (
-    requires_internal_path, _read_npy, _read_hdf5, _read_json, _read_npz, read_file,
-    offset_shape_to_slicing, dataviewer_from_file
-)
+from smalldataviewer import DataViewer
+from smalldataviewer.files import (read_file, offset_shape_to_slicing)
 
-from tests.common import (
-    INTERNAL_PATH, OFFSET, SHAPE,
-    hdf5_file, npy_file, npz_file, json_file, json_file_no_path, array, padded_array, subplots_patch
-)
-
-
-@pytest.fixture
-def files_with_ipath(hdf5_file, npz_file, json_file):
-    return [hdf5_file, npz_file, json_file]
-
-
-@pytest.fixture
-def files_with_no_ipath(npy_file, json_file_no_path):
-    return [npy_file, json_file_no_path]
-
-
-def test_requires_internal_path():
-    def undecorated(path, internal_path, slicing):
-        return path, internal_path, slicing
-
-    decorated = requires_internal_path(undecorated)
-
-    path = 'path'
-    internal_path = 'internal_path'
-    slicing = 'slicing'
-
-    assert undecorated(path, None, slicing) == (path, None, slicing)
-    with pytest.raises(ValueError):
-        decorated(path, None, slicing)
-    assert decorated(path, internal_path, slicing) == (path, internal_path, slicing)
+from tests.common import (INTERNAL_PATH, OFFSET, SHAPE, data_file, array, padded_array, subplots_patch)
 
 
 @pytest.mark.parametrize('offset,shape,expected', [
@@ -55,53 +24,49 @@ def test_offset_shape_to_slicing(offset, shape, expected):
     assert offset_shape_to_slicing(offset, shape) == expected
 
 
-def test_read_npy(npy_file, array):
-    slicing = offset_shape_to_slicing(OFFSET, SHAPE)
-    assert np.allclose(_read_npy(npy_file, None, slicing), array)
+def test_read_file(data_file, array):
+    path, has_ipath = data_file
+
+    ipath = INTERNAL_PATH if has_ipath else None
+
+    data = read_file(path, internal_path=ipath, offset=OFFSET, shape=SHAPE)
+    assert np.allclose(data, array)
 
 
-def test_read_hdf5(hdf5_file, array):
-    slicing = offset_shape_to_slicing(OFFSET, SHAPE)
-    with pytest.raises(ValueError):
-        _read_hdf5(hdf5_file, None, slicing)
-    assert np.allclose(_read_hdf5(hdf5_file, INTERNAL_PATH, slicing), array)
+def test_read_file_raises_or_warns(data_file):
+    path, has_ipath = data_file
+
+    if path.endswith('.json'):
+        return  # json can have either internal path or not
+
+    if has_ipath:
+        with pytest.raises(ValueError):
+            read_file(path)
+    else:
+        with pytest.warns(UserWarning):
+            read_file(path, INTERNAL_PATH)
 
 
-def test_read_npz(npz_file, array):
-    slicing = offset_shape_to_slicing(OFFSET, SHAPE)
-    assert np.allclose(_read_npz(npz_file, INTERNAL_PATH, slicing), array)
+def test_read_file_ftype_overrides(data_file, array):
+    path, has_ipath = data_file
+    _, ext = os.path.splitext(path)
+    new_path = path + '.txt'
+    os.rename(path, new_path)
+
+    if has_ipath:
+        assert np.allclose(
+            read_file(new_path, internal_path=INTERNAL_PATH, offset=OFFSET, shape=SHAPE, ftype=ext), array
+        )
+    else:
+        assert np.allclose(read_file(new_path, offset=OFFSET, shape=SHAPE, ftype=ext), array)
 
 
-def test_read_json(json_file, array):
-    slicing = offset_shape_to_slicing(OFFSET, SHAPE)
-    assert np.allclose(_read_json(json_file, INTERNAL_PATH, slicing), array)
+def test_dataviewer_from_file(data_file, array, subplots_patch):
+    path, has_ipath = data_file
 
+    if has_ipath:
+        dv = DataViewer.from_file(path, internal_path=INTERNAL_PATH, offset=OFFSET, shape=SHAPE)
+    else:
+        dv = DataViewer.from_file(path, offset=OFFSET, shape=SHAPE)
 
-def test_read_json_no_path(json_file_no_path, array):
-    slicing = offset_shape_to_slicing(OFFSET, SHAPE)
-    assert np.allclose(_read_json(json_file_no_path, None, slicing), array)
-
-
-def test_read_file_infers_type(files_with_ipath, files_with_no_ipath, array):
-    for path in files_with_ipath:
-        assert np.allclose(read_file(path, internal_path=INTERNAL_PATH, offset=OFFSET, shape=SHAPE), array)
-    for path in files_with_no_ipath:
-        assert np.allclose(read_file(path, offset=OFFSET, shape=SHAPE), array)
-
-
-def test_read_file_ftype_overrides(files_with_ipath, files_with_no_ipath, array):
-    for path in files_with_ipath:
-        _, ext = os.path.splitext(path)
-        new_path = path + '.txt'
-        os.rename(path, new_path)
-        assert np.allclose(read_file(new_path, internal_path=INTERNAL_PATH, offset=OFFSET, shape=SHAPE, ftype=ext), array)
-    for path in files_with_no_ipath:
-        _, ext = os.path.splitext(path)
-        new_path = path + '.txt'
-        os.rename(path, new_path)
-        assert np.allclose(read_file(new_path, None, offset=OFFSET, shape=SHAPE, ftype=ext), array)
-
-
-def test_dataviewer_from_file(npy_file, array, subplots_patch):
-    dv = dataviewer_from_file(npy_file, offset=OFFSET, shape=SHAPE)
     assert np.allclose(dv.volume, array)

@@ -7,14 +7,13 @@ except ImportError:
     import mock
 
 import numpy as np
-import h5py
+from smalldataviewer.ext import h5py, z5py, tifffile, PIL, NoSuchModule
 
 
 OFFSET = (10, 10, 10)
 SHAPE = (20, 20, 20)
 PADDED_SHAPE = tuple(s + o*2 for s, o in zip(SHAPE, OFFSET))
 
-VALUE = 10
 PAD_VALUE = 1
 
 INTERNAL_PATH = 'volume'
@@ -22,7 +21,8 @@ INTERNAL_PATH = 'volume'
 
 @pytest.fixture
 def array():
-    return np.ones(SHAPE, dtype=np.uint8) * VALUE
+    np.random.seed(1)
+    return np.random.randint(PAD_VALUE+1, 256, SHAPE, dtype=np.uint8)
 
 
 @pytest.fixture
@@ -33,52 +33,84 @@ def padded_array(array):
     return padded
 
 
-@pytest.fixture
-def hdf5_file(tmpdir, padded_array):
-    path = str(tmpdir.join('data.hdf5'))
+def hdf5_file(path, array):
+    if isinstance(h5py, NoSuchModule):
+        pytest.xfail('h5py not installed')
+
     with h5py.File(path, 'w') as f:
-        f.create_dataset(INTERNAL_PATH, data=padded_array)
-    return path
+        f.create_dataset(INTERNAL_PATH, data=array)
+    return True
 
 
-@pytest.fixture
-def npy_file(tmpdir, padded_array):
-    path = str(tmpdir.join('data.npy'))
-    np.save(path, padded_array)
-    return path
+def npy_file(path, array):
+    np.save(path, array)
+    return False
 
 
-@pytest.fixture
-def npz_file(tmpdir, padded_array):
-    path = str(tmpdir.join('data.npz'))
-    np.savez(path, **{INTERNAL_PATH: padded_array})
-    return path
+def npz_file(path, array):
+    np.savez(path, **{INTERNAL_PATH: array})
+    return True
 
 
-@pytest.fixture
-def json_file(tmpdir, padded_array):
-    path = str(tmpdir.join('data.json'))
+def json_file(path, array):
     with open(path, 'w') as f:
-        json.dump({INTERNAL_PATH: padded_array.tolist()}, f)
-    return path
+        json.dump({INTERNAL_PATH: array.tolist()}, f)
+    return True
 
 
-@pytest.fixture
-def json_file_no_path(tmpdir, padded_array):
-    path = str(tmpdir.join('data_no_path.json'))
+def json_file_no_path(path, array):
     with open(path, 'w') as f:
-        json.dump(padded_array.tolist(), f)
-    return path
+        json.dump(array.tolist(), f)
+    return False
 
 
-@pytest.fixture
-def n5_file(tmpdir, padded_array):
-    pytest.xfail('z5py is incompatible with tox, cannot test N5 utilities')
+def n5_file(path, array):
+    if isinstance(z5py, NoSuchModule):
+        pytest.xfail('z5py not installed')
+
+    with z5py.File(path, use_zarr_format=False) as f:
+        ds = f.create_dataset(INTERNAL_PATH, shape=array.shape, dtype=array.dtype, chunks=(10, 10, 10))
+        ds[:] = array
+    return True
 
 
-@pytest.fixture
-def zarr_file(tmpdir, padded_array):
-    pytest.xfail('z5py is incompatible with tox, cannot test Zarr utilities')
+def zarr_file(path, array):
+    if isinstance(z5py, NoSuchModule):
+        pytest.xfail('z5py not installed')
+
+    with z5py.File(path, use_zarr_format=True) as f:
+        ds = f.create_dataset(INTERNAL_PATH, shape=array.shape, dtype=array.dtype, chunks=(10, 10, 10))
+        ds[:] = array
+    return True
+
+
+def multitiff_file(path, array):
+    if isinstance(tifffile, NoSuchModule):
+        pytest.xfail('tifffile not installed')
+    if isinstance(PIL, NoSuchModule):
+        pytest.xfail('pillow not installed')
+    tifffile.imsave(path, array)
+    return False
+
+
+file_constructors = [
+    ('hdf5', hdf5_file),
+    ('npy', npy_file),
+    ('npz', npz_file),
+    ('json', json_file),
+    ('json', json_file_no_path),
+    ('n5', n5_file),
+    ('zarr', zarr_file),
+    ('tiff', multitiff_file),
+]
+
+
+@pytest.fixture(params=file_constructors, ids=lambda pair: pair[0])
+def data_file(request, tmpdir, padded_array):
+    ext, fn = request.param
+    path = str(tmpdir.join('data.' + ext))
+    requires_internal = fn(path, padded_array)
+    return path, requires_internal
 
 
 @pytest.fixture
