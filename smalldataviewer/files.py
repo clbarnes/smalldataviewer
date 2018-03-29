@@ -7,68 +7,84 @@ import json
 import logging
 import os
 import functools
+import warnings
 
 import numpy as np
 
-from smalldataviewer.viewer import DataViewer
+from smalldataviewer.ext import h5py, z5py, PIL
 
-__all__ = ['dataviewer_from_file']
+__all__ = ['read_file']
 
 
 logger = logging.getLogger(__name__)
 
 
-def requires_internal_path(fn):
-    @functools.wraps(fn)
-    def wrapped(path, internal_path, slicing):
-        if internal_path is None:
-            raise ValueError('internal_path required by this file format')
-        return fn(path, internal_path, slicing)
+def internal_path(has_ipath):
+    def decorator(fn):
+        @functools.wraps(fn)
+        def wrapped(path, internal_path, slicing):
+            if has_ipath and internal_path is None:
+                raise ValueError('internal_path required by this file format')
+            if not has_ipath and internal_path is not None:
+                warnings.warn(
+                    'internal_path not required by this file format: {} will be ignored'.format(internal_path)
+                )
+            return fn(path, internal_path, slicing)
+        return wrapped
+    return decorator
 
-    return wrapped
 
-
+@internal_path(False)
 def _read_npy(path, internal_path, slicing):
     return np.load(path)[slicing]
 
 
-@requires_internal_path
+@internal_path(True)
 def _read_n5(path, internal_path, slicing):
-    try:
-        import z5py
-    except ImportError:
-        raise ImportError('z5py is required to open N5 files')
-
     with z5py.File(path, False) as f:
         return np.asarray(f[internal_path][slicing])
 
 
-@requires_internal_path
+@internal_path(True)
 def _read_zarr(path, internal_path, slicing):
-    try:
-        import z5py
-    except ImportError:
-        raise ImportError('z5py is required to open zarr files')
-
     with z5py.File(path, True) as f:
         return np.asarray(f[internal_path][slicing])
 
 
-@requires_internal_path
+@internal_path(True)
 def _read_hdf5(path, internal_path, slicing):
-    try:
-        import h5py
-    except ImportError:
-        raise ImportError('h5py is required to open h5py files')
-
     with h5py.File(path, mode='r') as f:
         return np.asarray(f[internal_path][slicing])
 
 
-@requires_internal_path
+@internal_path(True)
 def _read_npz(path, internal_path, slicing):
     with np.load(path) as f:
         return np.asarray(f[internal_path][slicing])
+
+
+@internal_path(False)
+def _read_imagesequence(path, internal_path, slicing):
+    """multitiff"""
+    img = PIL.Image.open(path)
+    zmin, zmax = slicing[0].start, slicing[0].stop
+    tiles = []
+    for idx, frame in enumerate(PIL.ImageSequence.Iterator(img)):
+        if idx < (zmin or 0):
+            continue
+        if zmax is not None and idx >= zmax:
+            break
+
+        width = frame.size[0]
+        height = frame.size[1]
+        subframe = frame.crop((
+            slicing[2].start or 0,  # xmin
+            slicing[1].start or 0,  # ymin
+            slicing[2].stop or width,  # xmax
+            slicing[1].stop or height  # ymax
+        ))
+        tiles.append(np.asarray(subframe))
+    return np.array(tiles)
 
 
 def _read_json(path, internal_path, slicing):
@@ -90,7 +106,9 @@ FILE_CONSTRUCTORS = {
     'zr': _read_zarr,
     'npy': _read_npy,
     'npz': _read_npz,
-    'json': _read_json
+    'json': _read_json,
+    'tif': _read_imagesequence,
+    'tiff': _read_imagesequence,
 }
 
 
@@ -107,7 +125,7 @@ def offset_shape_to_slicing(offset=None, shape=None):
     return tuple(slices)
 
 
-def read_file(path, internal_path=None, ftype=None, offset=None, shape=None):
+def read_file(path, internal_path=None, offset=None, shape=None, ftype=None):
     if ftype is None:
         ftype = os.path.splitext(str(path))[1]
 
@@ -119,33 +137,3 @@ def read_file(path, internal_path=None, ftype=None, offset=None, shape=None):
         )
     slicing = offset_shape_to_slicing(offset, shape)
     return FILE_CONSTRUCTORS[stripped](path, internal_path, slicing)
-
-
-def dataviewer_from_file(path, internal_path=None, ftype=None, offset=None, shape=None, **kwargs):
-    """
-    Instantiate a DataViewer from a path to a file in a variety of formats.
-
-    Note: if this is not assigned to a variable, it may be garbage collected before plt.show() is called.
-
-    Parameters
-    ----------
-    path : str or PathLike
-        Path to dataset file
-    internal_path : str, optional
-        For dataset file types which need it, an internal path to the dataset
-    ftype : {'n5', 'hdf5', 'zarr', 'npy', 'npz', 'json'}, optional
-        File type. By default, infer from path extension.
-    offset : array-like, optional
-        Offset of ROI from (0, 0, 0). By default, start at (0, 0, 0)
-    shape : array-like, optional
-        Shape of ROI. By default, take the whole array.
-    kwargs
-        Passed to DataViewer constructor after ``volume``
-
-    Returns
-    -------
-    DataViewer
-    """
-
-    vol = read_file(path, internal_path, ftype, offset, shape)
-    return DataViewer(vol, **kwargs)

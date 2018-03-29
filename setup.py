@@ -12,6 +12,7 @@ with open(os.path.join(here, 'smalldataviewer', 'version.py')) as f:
 
 extras_require = {
     'hdf5': ['h5py>=2.0'],
+    'img': ['pillow>=5.0'],
     # 'n5': ['z5py'],  # n.b. must be installed with conda
     # 'zarr': ['z5py'],  # n.b. must be installed with conda
 }

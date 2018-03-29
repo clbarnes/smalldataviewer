@@ -42,24 +42,24 @@ As executable
                            path
 
     positional arguments:
-      path                  Path to HDF5, N5, zarr, npy, npz or JSON file
-                            containing a 3D dataset
+      path                  Path to HDF5, N5, zarr, npy, npz, JSON or multitiff
+                            file containing a 3D dataset
 
     optional arguments:
       -h, --help            show this help message and exit
       -i INTERNAL_PATH, --internal_path INTERNAL_PATH
                             Internal path of dataset inside HDF5, N5, zarr or npz
-                            file. If JSON, assumes the outerobject is a dict, and
+                            file. If JSON, assumes the outer object is a dict, and
                             internal_path is the key of the array
       -t TYPE, --type TYPE  Dataset file type. Inferred from extension if not
                             given.
       -o ORDER, --order ORDER
-                            Order of spatial axes for axis labelling purposes.
-                            Data is not transposed: dimension 0 will be scrolled
+                            Order of non-channel axes for axis labelling purposes
+                            (data is not transposed): dimension 0 will be scrolled
                             through, dimension 1 will be on the up-down axis,
-                            dimension 2 will be on the left-right axis,
-                            anddimension 3, if it exists, will be used as the
-                            colour channels. Default "zyx".
+                            dimension 2 will be on the left-right axis, and
+                            dimension 3, if it exists, will be used as the colour
+                            channels. Default "zyx".
       -f OFFSET, --offset OFFSET
                             3D offset of ROI from (0, 0, 0) in pixels, in the form
                             "<scroll>,<vertical>,<horizontal>"
@@ -90,8 +90,21 @@ As library
     viewer = DataViewer(data)
     viewer.show()  # or matplotlib.pyplot.show()
 
-    viewer2 = dataviewer_from_file(dataviewer, "my_data.npz", "volume")
+    viewer2 = DataViewer.from_file("my_data.npz", "volume")
     viewer2.show()
 
-Note: ``dataviewer_from_file`` reads the requested data into memory. ``DataViewer``
-does not, by default. However, you may need to, depending on the rest of your script.
+Note: ``Dataviewer.from_file`` reads the requested data from the file into memory.
+``DataViewer`` does not, by default. However, you may need to, depending on the rest
+of your script.
+
+Contributing
+~~~~~~~~~~~~
+
+If you would like to add support for a new file type:
+
+1. Add to ``tests/common`` a function which creates such a file and returns whether
+    it needs an internal path, and add it to ``file_constructors``.
+2. Add to ``smalldataviewer.files`` a function which reads such a file, and add
+    it to ``FILE_CONSTRUCTORS``.
+3. Don't forget to specify any dependencies in ``smalldataviewer.ext``,
+    ``extras_require`` in ``setup.py``, and ``requirements.txt``

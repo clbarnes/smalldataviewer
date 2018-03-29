@@ -2,7 +2,7 @@ import logging
 
 from matplotlib import pyplot as plt
 
-from smalldataviewer.files import dataviewer_from_file
+from smalldataviewer import DataViewer
 
 
 def str_to_ints(s):
@@ -17,7 +17,7 @@ def _main():
 
     parser = ArgumentParser()
     parser.add_argument('path',
-                        help='Path to HDF5, N5, zarr, npy, npz or JSON file containing a 3D dataset')
+                        help='Path to HDF5, N5, zarr, npy, npz, JSON or multitiff file containing a 3D dataset')
     parser.add_argument('-i', '--internal_path',
                         help='Internal path of dataset inside HDF5, N5, zarr or npz file. If JSON, assumes the outer '
                              'object is a dict, and internal_path is the key of the array')
@@ -26,7 +26,7 @@ def _main():
                         help='Order of non-channel axes for axis labelling purposes (data is not transposed): '
                              'dimension 0 will be scrolled through, '
                              'dimension 1 will be on the up-down axis, '
-                             'dimension 2 will be on the left-right axis, and'
+                             'dimension 2 will be on the left-right axis, and '
                              'dimension 3, if it exists, will be used as the colour channels. '
                              'Default "zyx".')
     parser.add_argument('-f', '--offset', type=str_to_ints,
@@ -46,7 +46,7 @@ def _main():
 
     logging.basicConfig(level=level)
 
-    dv = dataviewer_from_file(
+    dv = DataViewer.from_file(
         parsed_args.path, parsed_args.internal_path, parsed_args.type,
         offset=parsed_args.offset, shape=parsed_args.shape,
         data_order=parsed_args.order

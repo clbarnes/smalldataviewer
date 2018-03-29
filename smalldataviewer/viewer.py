@@ -6,6 +6,7 @@ from __future__ import division
 import logging
 
 import matplotlib.pyplot as plt
+from smalldataviewer.files import read_file
 
 __all__ = ['DataViewer']
 
@@ -91,3 +92,32 @@ class DataViewer(object):
         self.im.set_data(self._slice)
         self.ax.set_title(self.title_formatstr.format(self.idx))
         self.im.axes.figure.canvas.draw()
+
+    @classmethod
+    def from_file(cls, path, internal_path=None, ftype=None, offset=None, shape=None, **kwargs):
+        """
+        Instantiate a DataViewer from a path to a file in a variety of formats.
+
+        Note: if this is not assigned to a variable, it may be garbage collected before plt.show() is called.
+
+        Parameters
+        ----------
+        path : str or PathLike
+            Path to dataset file
+        internal_path : str, optional
+            For dataset file types which need it, an internal path to the dataset
+        ftype : {'n5', 'h5', 'hdf', 'hdf5', 'zarr', 'npy', 'npz', 'json', 'tif', 'tiff'}, optional
+            File type. By default, infer from path extension.
+        offset : array-like, optional
+            Offset of ROI from (0, 0, 0). By default, start at (0, 0, 0)
+        shape : array-like, optional
+            Shape of ROI. By default, take the whole array.
+        kwargs
+            Passed to DataViewer constructor after ``volume``
+
+        Returns
+        -------
+        DataViewer
+        """
+        vol = read_file(path, internal_path=internal_path, offset=offset, shape=shape, ftype=ftype)
+        return DataViewer(vol, **kwargs)
