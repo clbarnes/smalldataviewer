@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-"""Adapted from https://matplotlib.org/gallery/animation/image_slices_viewer.html"""
-
 from __future__ import division
 
 import json
