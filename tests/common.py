@@ -7,7 +7,7 @@ except ImportError:
     import mock
 
 import numpy as np
-from smalldataviewer.ext import h5py, z5py, tifffile, PIL, NoSuchModule
+from smalldataviewer.ext import h5py, z5py, PIL, NoSuchModule
 
 
 OFFSET = (10, 10, 10)
@@ -85,10 +85,12 @@ def zarr_file(path, array):
 
 
 def multitiff_file(path, array):
-    if isinstance(tifffile, NoSuchModule):
-        pytest.xfail('tifffile not installed')
     if isinstance(PIL, NoSuchModule):
         pytest.xfail('pillow not installed')
+    try:
+        import tifffile
+    except ImportError:
+        pytest.xfail('tifffile not installed')
     tifffile.imsave(path, array)
     return False
 

@@ -7,7 +7,7 @@ from importlib import import_module
 logger = logging.getLogger(__name__)
 
 
-EXTRAS = ['h5py', 'z5py', 'PIL', 'tifffile']
+EXTRAS = ['h5py', 'z5py', 'PIL']
 
 __all__ = ['NoSuchModule'] + EXTRAS
 
