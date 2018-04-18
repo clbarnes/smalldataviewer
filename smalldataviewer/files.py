@@ -63,7 +63,23 @@ def offset_shape_to_slicing(offset=None, shape=None):
 
 class FileReader:
     def __init__(self, path, offset=None, shape=None, internal_path=None, ftype=None):
-        self.path = path
+        """
+        A class which can read a variety of volumetric data formats.
+
+        Parameters
+        ----------
+        path : str or PathLike
+            Path to data file
+        offset : array-like, optional
+            Default (0, 0, 0)
+        shape : array-like, optional
+            Default everything from ``offset`` to the end
+        internal_path : str, optional
+            Path to data within file, if required
+        ftype : str, optional
+            Override file format inferred from ``path``
+        """
+        self.path = str(path)
         self.slicing = offset_shape_to_slicing(offset, shape)
         self.internal_path = internal_path
         self.explicit_ftype = ftype
@@ -73,12 +89,19 @@ class FileReader:
         self.inferred_ftype = NORMALISED_TYPES.get(ftype.lstrip('.').lower())
 
     def read(self):
+        """
+
+        Returns
+        -------
+        np.ndarray
+        """
         if not self.inferred_ftype:
             return self._read_imageio()
 
         return getattr(self, '_read_' + self.inferred_ftype)()
 
     def _slice_if_necessary(self, arr):
+        """Slice if self.slicing is not all, otherwise do not (avoid copying)"""
         if self.slicing == Ellipsis:
             return np.asarray(arr)
         else:
