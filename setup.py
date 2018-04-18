@@ -25,7 +25,7 @@ extras_require['full'] = sorted(full_requires)
 setup(
     name='smalldataviewer',
     version=__version__,
-    packages=find_packages(),
+    packages=find_packages(include=('smalldataviewer', )),
     url='https://github.com/clbarnes/smalldataviewer',
     license='MIT',
     install_requires=[
