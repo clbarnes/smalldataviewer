@@ -14,19 +14,22 @@ Installation
 
 .. code:: bash
 
-    pip install smalldataviewer
+    pip install smalldataviewer[full]
 
-Some file types require additional dependencies:
+The ``full`` installation includes all of these optional extras:
 
--  HDF5: h5py_
+- ``hdf5``: HDF5 file support via h5py_
+- ``img``: volumetric and animated images via imageio_
+- ``fits``: FITS images via ``imageio[fits]``, which uses astropy_
+- ``itk``: ITK images via ``imageio[simpleitk]``, which uses SimpleITK_
 
-   -  ``pip install h5py``
-
--  zarr, N5: z5py_
-
-   -  ``conda install -c cpape -c conda-forge z5py``
+Support for N5 and zarr arrays is also available via z5py_ .
+This must be installed with conda (``conda install -c conda-forge -c cpape z5py``).
 
 .. _h5py: http://docs.h5py.org/en/latest/build.html
+.. _imageio: https://imageio.readthedocs.io
+.. _astropy: http://www.astropy.org/
+.. _SimpleITK: http://www.simpleitk.org/
 .. _z5py: https://github.com/constantinpape/z5
 
 Usage
@@ -95,14 +98,6 @@ As library
 Note: ``Dataviewer.from_file`` reads the requested data from the file into memory.
 ``DataViewer`` does not, by default. However, you may need to, depending on the rest
 of your script.
-
-Other formats
-~~~~~~~~~~~~~
-
-Support for many data formats comes from the excellent library ``imageio``.
-Even more formats are available with plugins: see the `imageio docs`_ for more details.
-
-.. _imageio docs: https://imageio.readthedocs.io/en/stable/formats.html
 
 Contributing
 ~~~~~~~~~~~~
