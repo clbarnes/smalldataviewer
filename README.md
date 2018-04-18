@@ -72,6 +72,8 @@ optional arguments:
   -v, --verbose         Increase logging verbosity
 ```
 
+e.g.
+
 ```bash
 smalldataviewer my_data.hdf5 -i /my_group/my_volume
 ```
@@ -85,21 +87,29 @@ this, look at small chunks with the `--offset` (`-f`) and `--shape`
 ### As library
 
 ```python
-from smalldataviewer import DataViewer
+import smalldataviewer as sdv
 
 import numpy as np
 data = np.random.random((30, 100, 100))
-
-viewer = DataViewer(data)
+viewer = sdv.DataViewer(data)
 viewer.show()  # or matplotlib.pyplot.show()
 
-viewer2 = DataViewer.from_file("my_data.npz", "volume")
+viewer2 = sdv.DataViewer.from_file(
+    "my_data.npz", offset=(10, 20, 30), shape=(256, 512, 512), internal_path="volume"
+)
 viewer2.show()
+
+reader = sdv.FileReader("my_cat_video.gif")
+data2 = reader.read()  # returns a numpy array
+viewer3 = sdv.DataViewer(data2)
+viewer3.show()
 ```
 
-Note: `Dataviewer.from_file` reads the requested data from the file into
-memory. `DataViewer` does not, by default. However, you may need to,
-depending on the rest of your script.
+Note: `FileReader` (and byt extension `Dataviewer.from_file`) reads the requested data
+from the file into memory.
+Passing an indexable representation of a file, like a numpy memmap or an hdf5 dataset,
+will not.
+However, you may need to copy it into memory for performance, or depending on the rest of your script.
 
 ### Contributing
 
