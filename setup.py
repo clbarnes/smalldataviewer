@@ -4,7 +4,7 @@ from itertools import chain
 
 here = os.path.abspath(os.path.dirname(__file__))
 
-with open(os.path.join(here, 'README.rst')) as f:
+with open(os.path.join(here, 'README.md')) as f:
     readme = f.read()
 
 with open(os.path.join(here, 'smalldataviewer', 'version.py')) as f:
@@ -39,6 +39,7 @@ setup(
     author_email='barnesc@janelia.hhmi.org',
     description='Command-line tool and python library for visualising small 3D datasets',
     long_description=readme,
+    long_description_content_type='text/markdown',
     entry_points={
         'console_scripts': [
             'smalldataviewer = smalldataviewer.__main__:_main',
