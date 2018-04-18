@@ -31,8 +31,8 @@ setup(
     install_requires=[
         'numpy>=1.7.1',
         'matplotlib>=2.0'
-        'enum34>=1.1; python_version < "3.4"',  # _tifffile.py requirement
-        'futures>=3.2; python_version < "3.2"',  # _tifffile.py requirement
+        'enum34>=1.1; python_version < "3.4"',  # todo: remove with https://github.com/imageio/imageio/pull/337
+        'futures>=3.2; python_version < "3.2"',  # todo: remove with https://github.com/imageio/imageio/pull/337
     ],
     extras_require=extras_require,
     author='Chris L Barnes',
