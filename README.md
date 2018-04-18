@@ -7,6 +7,10 @@ helpful for debugging. Supports python 2.7 and 3.4+.
 
 Adapted from [this matplotlib recipe](https://matplotlib.org/gallery/animation/image_slices_viewer.html).
 
+
+![Small ssTEM Volume](examples/sstem.gif)
+
+
 ## Installation
 
 ```bash
@@ -31,8 +35,6 @@ The `DataViewer` opens a `matplotlib` figure of the data volume.
 -   Dimension 1 is shown on the vertical axis
 -   Dimension 2 is shown on the horizontal axis
 -   Dimension 3, if it exists, is a colour tuple
-
-![Small ssTEM Volume](examples/sstem.gif)
 
 ### As executable
 
