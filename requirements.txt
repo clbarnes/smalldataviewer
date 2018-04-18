@@ -7,4 +7,6 @@ twine
 pytest
 tox
 pillow==5.0.0
-tifffile==0.14.0
+imageio[fits,simpleitk]==2.3
+enum34==1.1.6; python_version < "3.4"
+futures==3.2.0; python_version < "3.2"

@@ -42,8 +42,7 @@ As executable
                            path
 
     positional arguments:
-      path                  Path to HDF5, N5, zarr, npy, npz, JSON or multitiff
-                            file containing a 3D dataset
+      path                  Path to file containing a 3D dataset
 
     optional arguments:
       -h, --help            show this help message and exit
@@ -75,7 +74,7 @@ As executable
 Note: because of the circumstances under which python holds file descriptors open,
 and under which matplotlib blocks, the executable form reads the data into memory
 in its entirety. If your data are too big for this, look at small chunks with the
-oFfset and Shape options.
+``--offset`` (``-f``) and ``--shape`` (``-s``) options.
 
 As library
 ~~~~~~~~~~
@@ -97,14 +96,29 @@ Note: ``Dataviewer.from_file`` reads the requested data from the file into memor
 ``DataViewer`` does not, by default. However, you may need to, depending on the rest
 of your script.
 
+Other formats
+~~~~~~~~~~~~~
+
+Support for many data formats comes from the excellent library ``imageio``.
+Even more formats are available with plugins: see the `imageio docs`_ for more details.
+
+.. _imageio docs: https://imageio.readthedocs.io/en/stable/formats.html
+
 Contributing
 ~~~~~~~~~~~~
+
+Install a development environment (not including z5py) with ``make install-dev``
+
+Run tests in your current python environment with ``make test``
+
+Run tests against all supported python versions with ``make test-all``
 
 If you would like to add support for a new file type:
 
 1. Add to ``tests/common`` a function which creates such a file and returns whether
     it needs an internal path, and add it to ``file_constructors``.
-2. Add to ``smalldataviewer.files`` a function which reads such a file, and add
-    it to ``FILE_CONSTRUCTORS``.
+2. Add to ``smalldataviewer.files.FileReader`` a function which reads such a file,
+    returning a numpy array, and add a mapping from likely file extensions to a single file
+    type in ``NORMALISED_TYPES`` (see examples).
 3. Don't forget to specify any dependencies in ``smalldataviewer.ext``,
     ``extras_require`` in ``setup.py``, and ``requirements.txt``

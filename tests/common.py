@@ -1,4 +1,5 @@
 import json
+import warnings
 
 import pytest
 try:
@@ -7,7 +8,7 @@ except ImportError:
     import mock
 
 import numpy as np
-from smalldataviewer.ext import h5py, z5py, PIL, NoSuchModule
+from smalldataviewer.ext import h5py, z5py, imageio, NoSuchModule
 
 
 OFFSET = (10, 10, 10)
@@ -35,7 +36,7 @@ def padded_array(array):
 
 def hdf5_file(path, array):
     if isinstance(h5py, NoSuchModule):
-        pytest.xfail('h5py not installed')
+        pytest.skip('h5py not installed')
 
     with h5py.File(path, 'w') as f:
         f.create_dataset(INTERNAL_PATH, data=array)
@@ -66,7 +67,7 @@ def json_file_no_path(path, array):
 
 def n5_file(path, array):
     if isinstance(z5py, NoSuchModule):
-        pytest.xfail('z5py not installed')
+        pytest.skip('z5py not installed')
 
     with z5py.File(path, use_zarr_format=False) as f:
         ds = f.create_dataset(INTERNAL_PATH, shape=array.shape, dtype=array.dtype, chunks=(10, 10, 10))
@@ -76,7 +77,7 @@ def n5_file(path, array):
 
 def zarr_file(path, array):
     if isinstance(z5py, NoSuchModule):
-        pytest.xfail('z5py not installed')
+        pytest.skip('z5py not installed')
 
     with z5py.File(path, use_zarr_format=True) as f:
         ds = f.create_dataset(INTERNAL_PATH, shape=array.shape, dtype=array.dtype, chunks=(10, 10, 10))
@@ -84,14 +85,21 @@ def zarr_file(path, array):
     return True
 
 
-def multitiff_file(path, array):
-    if isinstance(PIL, NoSuchModule):
-        pytest.xfail('pillow not installed')
-    try:
-        import tifffile
-    except ImportError:
-        pytest.xfail('tifffile not installed')
-    tifffile.imsave(path, array)
+def imageio_mim_file(path, array):
+    if isinstance(imageio, NoSuchModule):
+        pytest.skip('imageio not installed')
+
+    with warnings.catch_warnings():
+        warnings.filterwarnings('ignore', message='.*_tifffile')
+        imageio.mimwrite(path, array)
+    return False
+
+
+def imageio_vol_file(path, array):
+    if isinstance(imageio, NoSuchModule):
+        pytest.skip('imageio not installed')
+
+    imageio.volwrite(path, array)
     return False
 
 
@@ -103,7 +111,11 @@ file_constructors = [
     ('json', json_file_no_path),
     ('n5', n5_file),
     ('zarr', zarr_file),
-    ('tiff', multitiff_file),
+    ('tiff', imageio_mim_file),
+    ('gif', imageio_mim_file),
+    ('bsdf', imageio_mim_file),
+    # ('dcm', imageio_mim_file),  # imageio cannot write
+    ('swf', imageio_mim_file),
 ]
 
 

@@ -6,7 +6,7 @@ from __future__ import division
 import logging
 
 import matplotlib.pyplot as plt
-from smalldataviewer.files import read_file
+from smalldataviewer.files import FileReader
 
 __all__ = ['DataViewer']
 
@@ -119,5 +119,5 @@ class DataViewer(object):
         -------
         DataViewer
         """
-        vol = read_file(path, internal_path=internal_path, offset=offset, shape=shape, ftype=ftype)
+        vol = FileReader(path, internal_path=internal_path, offset=offset, shape=shape, ftype=ftype).read()
         return DataViewer(vol, **kwargs)

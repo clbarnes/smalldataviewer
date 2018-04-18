@@ -9,108 +9,46 @@ import warnings
 
 import numpy as np
 
-from smalldataviewer.ext import h5py, z5py, PIL
+from smalldataviewer.ext import h5py, z5py, PIL, imageio
 
-__all__ = ['read_file']
+__all__ = ['FileReader']
 
 
 logger = logging.getLogger(__name__)
 
 
-def internal_path(has_ipath):
+NORMALISED_TYPES = {
+    'n5': 'n5',
+    'hdf': 'hdf5',
+    'h5': 'hdf5',
+    'hdf5': 'hdf5',
+    'zarr': 'zarr',
+    'zr': 'zarr',
+    'npy': 'npy',
+    'npz': 'npz',
+    'json': 'json',
+}
+
+
+def check_internal_path(has_ipath):
     def decorator(fn):
         @functools.wraps(fn)
-        def wrapped(path, internal_path, slicing):
-            if has_ipath and internal_path is None:
+        def wrapped(obj):
+            if has_ipath and obj.internal_path is None:
                 raise ValueError('internal_path required by this file format')
-            if not has_ipath and internal_path is not None:
+            if not has_ipath and obj.internal_path is not None:
                 warnings.warn(
-                    'internal_path not required by this file format: {} will be ignored'.format(internal_path)
+                    'internal_path not required by this file format: {} will be ignored'.format(check_internal_path)
                 )
-            return fn(path, internal_path, slicing)
+            return fn(obj)
         return wrapped
     return decorator
 
 
-@internal_path(False)
-def _read_npy(path, internal_path, slicing):
-    return np.load(path)[slicing]
-
-
-@internal_path(True)
-def _read_n5(path, internal_path, slicing):
-    with z5py.File(path, False) as f:
-        return np.asarray(f[internal_path][slicing])
-
-
-@internal_path(True)
-def _read_zarr(path, internal_path, slicing):
-    with z5py.File(path, True) as f:
-        return np.asarray(f[internal_path][slicing])
-
-
-@internal_path(True)
-def _read_hdf5(path, internal_path, slicing):
-    with h5py.File(path, mode='r') as f:
-        return np.asarray(f[internal_path][slicing])
-
-
-@internal_path(True)
-def _read_npz(path, internal_path, slicing):
-    with np.load(path) as f:
-        return np.asarray(f[internal_path][slicing])
-
-
-@internal_path(False)
-def _read_imagesequence(path, internal_path, slicing):
-    """multitiff"""
-    img = PIL.Image.open(path)
-    zmin, zmax = slicing[0].start, slicing[0].stop
-    tiles = []
-    for idx, frame in enumerate(PIL.ImageSequence.Iterator(img)):
-        if idx < (zmin or 0):
-            continue
-        if zmax is not None and idx >= zmax:
-            break
-
-        width = frame.size[0]
-        height = frame.size[1]
-        subframe = frame.crop((
-            slicing[2].start or 0,  # xmin
-            slicing[1].start or 0,  # ymin
-            slicing[2].stop or width,  # xmax
-            slicing[1].stop or height  # ymax
-        ))
-        tiles.append(np.asarray(subframe))
-    return np.array(tiles)
-
-
-def _read_json(path, internal_path, slicing):
-    with open(path) as f:
-        obj = json.load(f)
-
-    if internal_path:
-        obj = obj[internal_path]
-
-    return np.asarray(obj)[slicing]
-
-
-FILE_CONSTRUCTORS = {
-    'n5': _read_n5,
-    'hdf': _read_hdf5,
-    'h5': _read_hdf5,
-    'hdf5': _read_hdf5,
-    'zarr': _read_zarr,
-    'zr': _read_zarr,
-    'npy': _read_npy,
-    'npz': _read_npz,
-    'json': _read_json,
-    'tif': _read_imagesequence,
-    'tiff': _read_imagesequence,
-}
-
-
 def offset_shape_to_slicing(offset=None, shape=None):
+    if offset is None and shape is None:
+        return Ellipsis
+
     slices = []
     for o, s in zip(offset or (None, None, None), shape or (None, None, None)):
         if s is None:
@@ -123,15 +61,76 @@ def offset_shape_to_slicing(offset=None, shape=None):
     return tuple(slices)
 
 
-def read_file(path, internal_path=None, offset=None, shape=None, ftype=None):
-    if ftype is None:
-        ftype = os.path.splitext(str(path))[1]
+class FileReader:
+    def __init__(self, path, offset=None, shape=None, internal_path=None, ftype=None):
+        self.path = path
+        self.slicing = offset_shape_to_slicing(offset, shape)
+        self.internal_path = internal_path
+        self.explicit_ftype = ftype
+        if ftype is None:
+            ftype = os.path.splitext(str(path))[1]
 
-    stripped = ftype.lstrip('.').lower()
+        self.inferred_ftype = NORMALISED_TYPES.get(ftype.lstrip('.').lower())
 
-    if stripped not in FILE_CONSTRUCTORS:
-        raise KeyError('File type {} not recognised; use one of \n\t{}'.format(
-            ftype, ', '.join(sorted(FILE_CONSTRUCTORS)))
-        )
-    slicing = offset_shape_to_slicing(offset, shape)
-    return FILE_CONSTRUCTORS[stripped](path, internal_path, slicing)
+    def read(self):
+        if not self.inferred_ftype:
+            return self._read_imageio()
+
+        return getattr(self, '_read_' + self.inferred_ftype)()
+
+    def _slice_if_necessary(self, arr):
+        if self.slicing == Ellipsis:
+            return np.asarray(arr)
+        else:
+            return np.asarray(arr)[self.slicing]
+
+    @check_internal_path(False)
+    def _read_npy(self):
+        whole_arr = np.load(self.path)
+        return self._slice_if_necessary(whole_arr)
+
+    @check_internal_path(True)
+    def _read_n5(self):
+        with z5py.File(self.path, False, mode='r') as f:
+            return np.asarray(f[self.internal_path][self.slicing])
+
+    @check_internal_path(True)
+    def _read_zarr(self):
+        with z5py.File(self.path, True, mode='r') as f:
+            return np.asarray(f[self.internal_path][self.slicing])
+
+    @check_internal_path(True)
+    def _read_hdf5(self):
+        with h5py.File(self.path, mode='r') as f:
+            return np.asarray(f[self.internal_path][self.slicing])
+
+    @check_internal_path(True)
+    def _read_npz(self):
+        with np.load(self.path) as f:
+            return self._slice_if_necessary(f[self.internal_path])
+
+    @check_internal_path(False)
+    def _read_imageio(self):
+        slicing = [slice(None, None) for _ in range(3)] if self.slicing == Ellipsis else self.slicing
+        zmin, zmax = slicing[0].start or 0, slicing[0].stop
+        reader = imageio.get_reader(self.path, format=self.explicit_ftype)
+
+        tiles = []
+        for idx, frame in enumerate(reader):
+            if idx < zmin:
+                continue
+            if zmax is not None and idx >= zmax:
+                break
+
+            subframe = frame[slicing[1:]]
+            tiles.append(np.asarray(subframe))
+        return np.array(tiles)
+
+    def _read_json(self):
+        with open(self.path) as f:
+            obj = json.load(f)
+
+        if self.internal_path:
+            obj = obj[self.internal_path]
+
+        return self._slice_if_necessary(obj)

@@ -17,7 +17,7 @@ def _main():
 
     parser = ArgumentParser()
     parser.add_argument('path',
-                        help='Path to HDF5, N5, zarr, npy, npz, JSON or multitiff file containing a 3D dataset')
+                        help='Path to file containing a 3D dataset')
     parser.add_argument('-i', '--internal_path',
                         help='Internal path of dataset inside HDF5, N5, zarr or npz file. If JSON, assumes the outer '
                              'object is a dict, and internal_path is the key of the array')

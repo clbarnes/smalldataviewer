@@ -2,12 +2,13 @@ from __future__ import print_function
 import sys
 import logging
 import traceback
+import warnings
 from importlib import import_module
 
 logger = logging.getLogger(__name__)
 
 
-EXTRAS = ['h5py', 'z5py', 'PIL']
+EXTRAS = ['h5py', 'z5py', 'PIL', 'imageio']
 
 __all__ = ['NoSuchModule'] + EXTRAS
 
@@ -27,7 +28,9 @@ class NoSuchModule(object):
 
 def import_if_available(name, namespace):
     try:
-        module = import_module(name)
+        with warnings.catch_warnings(record=True):
+            warnings.filterwarnings('ignore', '.*issubdtype')
+            module = import_module(name)
     except ImportError as e:
         module = NoSuchModule(name)
 

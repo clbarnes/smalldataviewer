@@ -12,7 +12,9 @@ with open(os.path.join(here, 'smalldataviewer', 'version.py')) as f:
 
 extras_require = {
     'hdf5': ['h5py>=2.0'],
-    'img': ['pillow>=5.0'],
+    'img': ['imageio>=2.3'],
+    'fits': ['imageio[fits]>=2.3'],
+    'itk': ['imageio[simpleitk]>=2.3'],
     # 'n5': ['z5py'],  # n.b. must be installed with conda
     # 'zarr': ['z5py'],  # n.b. must be installed with conda
 }
@@ -29,13 +31,20 @@ setup(
     install_requires=[
         'numpy>=1.7.1',
         'matplotlib>=2.0'
+        'enum34>=1.1; python_version < "3.4"',  # _tifffile.py requirement
+        'futures>=3.2; python_version < "3.2"',  # _tifffile.py requirement
     ],
     extras_require=extras_require,
     author='Chris L Barnes',
     author_email='barnesc@janelia.hhmi.org',
     description='Command-line tool and python library for visualising small 3D datasets',
     long_description=readme,
-    entry_points={'console_scripts': ['smalldataviewer = smalldataviewer.__main__:_main']},
+    entry_points={
+        'console_scripts': [
+            'smalldataviewer = smalldataviewer.__main__:_main',
+            'sdv = smalldataviewer.__main__:_main',
+        ]
+    },
     classifiers=[
         'Development Status :: 4 - Beta',
         'License :: OSI Approved :: MIT License',

@@ -8,13 +8,13 @@ except ImportError:
     import mock
 
 from smalldataviewer import DataViewer
-from smalldataviewer.files import (read_file, offset_shape_to_slicing)
+from smalldataviewer.files import offset_shape_to_slicing, FileReader
 
 from tests.common import (INTERNAL_PATH, OFFSET, SHAPE, data_file, array, padded_array, subplots_patch)
 
 
 @pytest.mark.parametrize('offset,shape,expected', [
-    [None, None, (slice(None), slice(None), slice(None))],
+    [None, None, Ellipsis],
     [(1, 1, 1), (2, 2, 2), (slice(1, 3), slice(1, 3), slice(1, 3))],
     [None, (2, 2, 2), (slice(None, 2), slice(None, 2), slice(None, 2))],
     [(1, 1, 1), None, (slice(1, None), slice(1, None), slice(1, None))],
@@ -29,7 +29,11 @@ def test_read_file(data_file, array):
 
     ipath = INTERNAL_PATH if has_ipath else None
 
-    data = read_file(path, internal_path=ipath, offset=OFFSET, shape=SHAPE)
+    data = FileReader(path, internal_path=ipath, offset=OFFSET, shape=SHAPE).read()
+
+    if path.endswith('swf'):
+        pytest.xfail('swf comparison is hard due to compression and dimensions')
+
     assert np.allclose(data, array)
 
 
@@ -41,10 +45,10 @@ def test_read_file_raises_or_warns(data_file):
 
     if has_ipath:
         with pytest.raises(ValueError):
-            read_file(path)
+            FileReader(path).read()
     else:
         with pytest.warns(UserWarning):
-            read_file(path, INTERNAL_PATH)
+            FileReader(path, internal_path=INTERNAL_PATH).read()
 
 
 def test_read_file_ftype_overrides(data_file, array):
@@ -53,12 +57,14 @@ def test_read_file_ftype_overrides(data_file, array):
     new_path = path + '.txt'
     os.rename(path, new_path)
 
-    if has_ipath:
-        assert np.allclose(
-            read_file(new_path, internal_path=INTERNAL_PATH, offset=OFFSET, shape=SHAPE, ftype=ext), array
-        )
-    else:
-        assert np.allclose(read_file(new_path, offset=OFFSET, shape=SHAPE, ftype=ext), array)
+    read_array = FileReader(
+        new_path, internal_path=INTERNAL_PATH if has_ipath else None, offset=OFFSET, shape=SHAPE, ftype=ext
+    ).read()
+
+    if path.endswith('swf'):
+        pytest.xfail('swf comparison is hard due to compression and dimensions')
+
+    assert np.allclose(read_array, array)
 
 
 def test_dataviewer_from_file(data_file, array, subplots_patch):
@@ -68,5 +74,8 @@ def test_dataviewer_from_file(data_file, array, subplots_patch):
         dv = DataViewer.from_file(path, internal_path=INTERNAL_PATH, offset=OFFSET, shape=SHAPE)
     else:
         dv = DataViewer.from_file(path, offset=OFFSET, shape=SHAPE)
+
+    if path.endswith('swf'):
+        pytest.xfail('swf comparison is hard due to compression and dimensions')
 
     assert np.allclose(dv.volume, array)
