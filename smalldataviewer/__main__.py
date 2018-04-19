@@ -2,7 +2,7 @@ import logging
 
 from matplotlib import pyplot as plt
 
-from smalldataviewer import DataViewer
+from smalldataviewer import DataViewer, __version__
 
 
 def str_to_ints(s):
@@ -18,6 +18,8 @@ def _main():
     parser = ArgumentParser()
     parser.add_argument('path',
                         help='Path to file containing a 3D dataset')
+    parser.add_argument('--version', action='version', version='smalldataviewer ' + __version__,
+                        help='Print version information and exit')
     parser.add_argument('-i', '--internal_path',
                         help='Internal path of dataset inside HDF5, N5, zarr or npz file. If JSON, assumes the outer '
                              'object is a dict, and internal_path is the key of the array')

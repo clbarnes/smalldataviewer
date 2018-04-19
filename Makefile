@@ -1,3 +1,7 @@
+module = smalldataviewer
+version_file = $(module)/version.py
+current_version := $(shell grep -Po "\d+\.\d+\.\d+" $(version_file))
+
 install:
 	pip install .
 
@@ -37,6 +41,15 @@ dist: clean ## builds source and wheel package
 	python setup.py sdist
 	python setup.py bdist_wheel
 	ls -l dist
+
+version-patch:
+	bumpversion --current-version $(current_version) patch $(module)/version.py --commit --tag
+
+version-minor:
+	bumpversion --current-version $(current_version) minor $(module)/version.py --commit --tag
+
+version-major:
+	bumpversion --current-version $(current_version) major $(module)/version.py --commit --tag
 
 release: dist ## package and upload a release
 	twine upload dist/*

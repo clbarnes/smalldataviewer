@@ -9,7 +9,7 @@ import warnings
 
 import numpy as np
 
-from smalldataviewer.ext import h5py, z5py, PIL, imageio
+from smalldataviewer.ext import h5py, z5py, imageio
 
 __all__ = ['FileReader']
 
