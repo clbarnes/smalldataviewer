@@ -1,9 +1,8 @@
 # smalldataviewer
 
-![Travis](https://img.shields.io/travis/clbarnes/smalldataviewer.svg)
-![PyPI](https://img.shields.io/pypi/v/smalldataviewer.svg)
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/smalldataviewer.svg)
-
+[![Travis](https://img.shields.io/travis/clbarnes/smalldataviewer.svg)](https://travis-ci.org/clbarnes/smalldataviewer)
+[![PyPI](https://img.shields.io/pypi/v/smalldataviewer.svg)](https://pypi.org/project/smalldataviewer/)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/smalldataviewer.svg)](https://www.python.org/)
 
 Simple matplotlib-based tool for viewing small amounts of 3D image data;
 helpful for debugging. Supports python 2.7 and 3.4+.
@@ -11,7 +10,7 @@ helpful for debugging. Supports python 2.7 and 3.4+.
 Adapted from [this matplotlib recipe](https://matplotlib.org/gallery/animation/image_slices_viewer.html).
 
 
-![Small ssTEM Volume](examples/sstem.gif)
+![Small ssTEM Volume](https://media.giphy.com/media/fWggPcSFuQH0ZTAHKG/giphy.gif)
 
 
 ## Installation
