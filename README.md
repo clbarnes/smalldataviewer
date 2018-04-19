@@ -1,6 +1,9 @@
-[![Build Status](https://travis-ci.org/clbarnes/smalldataviewer.svg?branch=master)](https://travis-ci.org/clbarnes/smalldataviewer)
-
 # smalldataviewer
+
+![Travis](https://img.shields.io/travis/clbarnes/smalldataviewer.svg)
+![PyPI](https://img.shields.io/pypi/v/smalldataviewer.svg)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/smalldataviewer.svg)
+
 
 Simple matplotlib-based tool for viewing small amounts of 3D image data;
 helpful for debugging. Supports python 2.7 and 3.4+.
@@ -105,13 +108,13 @@ viewer3 = sdv.DataViewer(data2)
 viewer3.show()
 ```
 
-Note: `FileReader` (and byt extension `Dataviewer.from_file`) reads the requested data
+Note: `FileReader` (and by extension `Dataviewer.from_file`) reads the requested data
 from the file into memory.
 Passing an indexable representation of a file, like a numpy memmap or an hdf5 dataset,
 will not.
 However, you may need to copy it into memory for performance, or depending on the rest of your script.
 
-### Contributing
+## Contributing
 
 Install a development environment (not including z5py) with
 `make install-dev`

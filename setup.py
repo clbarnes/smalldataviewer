@@ -55,6 +55,6 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 2.7',
     ],
-    keywords='image volume 3d',
+    keywords='image volume 3d hdf5 n5 zarr',
     python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*'
 )

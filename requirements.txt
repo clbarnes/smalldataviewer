@@ -2,10 +2,11 @@ numpy==1.14.2
 matplotlib==2.2.0
 h5py==2.7.1
 mock==2.0.0; python_version < "3.3"
-wheel
-twine
-pytest
-tox
+setuptools==39.0
+wheel==0.31
+twine==1.11
+pytest==3.5
+tox==3.0
 pillow==5.0.0
 imageio[fits,simpleitk]==2.3
 enum34==1.1.6; python_version < "3.4"
