@@ -8,7 +8,7 @@ except ImportError:
     import mock
 
 from smalldataviewer import DataViewer
-from smalldataviewer.files import offset_shape_to_slicing, FileReader
+from smalldataviewer.files import offset_shape_to_slicing, FileReader, NORMALISED_TYPES
 
 from tests.common import (INTERNAL_PATH, OFFSET, SHAPE, data_file, array, padded_array, subplots_patch)
 
@@ -58,13 +58,18 @@ def test_read_file_ftype_overrides(data_file, array):
     os.rename(path, new_path)
 
     read_array = FileReader(
-        new_path, internal_path=INTERNAL_PATH if has_ipath else None, offset=OFFSET, shape=SHAPE, ftype=ext
-    ).read()
+        new_path, internal_path=INTERNAL_PATH if has_ipath else None, offset=OFFSET, shape=SHAPE
+    ).read(ext.lstrip('.'))
 
     if path.endswith('swf'):
         pytest.xfail('swf comparison is hard due to compression and dimensions')
 
     assert np.allclose(read_array, array)
+
+
+@pytest.mark.parametrize('method_name', sorted({'_read_' + tail for tail in NORMALISED_TYPES.values()}))
+def test_read_methods_exist(method_name):
+    assert hasattr(FileReader, method_name)
 
 
 def test_dataviewer_from_file(data_file, array, subplots_patch):

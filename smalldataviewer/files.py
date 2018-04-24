@@ -33,14 +33,14 @@ NORMALISED_TYPES = {
 def check_internal_path(has_ipath):
     def decorator(fn):
         @functools.wraps(fn)
-        def wrapped(obj):
+        def wrapped(obj, *args, **kwargs):
             if has_ipath and obj.internal_path is None:
                 raise ValueError('internal_path required by this file format')
             if not has_ipath and obj.internal_path is not None:
                 warnings.warn(
                     'internal_path not required by this file format: {} will be ignored'.format(check_internal_path)
                 )
-            return fn(obj)
+            return fn(obj, *args, **kwargs)
         return wrapped
     return decorator
 
@@ -62,7 +62,7 @@ def offset_shape_to_slicing(offset=None, shape=None):
 
 
 class FileReader:
-    def __init__(self, path, offset=None, shape=None, internal_path=None, ftype=None):
+    def __init__(self, path, offset=None, shape=None, internal_path=None):
         """
         A class which can read a variety of volumetric data formats.
 
@@ -82,23 +82,26 @@ class FileReader:
         self.path = str(path)
         self.slicing = offset_shape_to_slicing(offset, shape)
         self.internal_path = internal_path
-        self.explicit_ftype = ftype
-        if ftype is None:
-            ftype = os.path.splitext(str(path))[1]
 
-        self.inferred_ftype = NORMALISED_TYPES.get(ftype.lstrip('.').lower())
+        self.ftype = NORMALISED_TYPES.get(os.path.splitext(str(path))[1].lstrip('.').lower())
 
-    def read(self):
+    def read(self, ftype=None):
         """
 
         Returns
         -------
         np.ndarray
         """
-        if not self.inferred_ftype:
-            return self._read_imageio()
-
-        return getattr(self, '_read_' + self.inferred_ftype)()
+        if ftype:
+            if ftype in NORMALISED_TYPES:
+                return getattr(self, '_read_' + NORMALISED_TYPES[ftype])()
+            else:
+                return self._read_imageio(ftype)
+        else:
+            if self.ftype:
+                return getattr(self, '_read_' + self.ftype)()
+            else:
+                return self._read_imageio()
 
     def _slice_if_necessary(self, arr):
         """Slice if self.slicing is not all, otherwise do not (avoid copying)"""
@@ -133,10 +136,10 @@ class FileReader:
             return self._slice_if_necessary(f[self.internal_path])
 
     @check_internal_path(False)
-    def _read_imageio(self):
+    def _read_imageio(self, ftype=None):
         slicing = [slice(None, None) for _ in range(3)] if self.slicing == Ellipsis else self.slicing
         zmin, zmax = slicing[0].start or 0, slicing[0].stop
-        reader = imageio.get_reader(self.path, format=self.explicit_ftype)
+        reader = imageio.get_reader(self.path, format=ftype)
 
         tiles = []
         for idx, frame in enumerate(reader):

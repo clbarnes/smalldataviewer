@@ -94,7 +94,7 @@ class DataViewer(object):
         self.im.axes.figure.canvas.draw()
 
     @classmethod
-    def from_file(cls, path, internal_path=None, ftype=None, offset=None, shape=None, **kwargs):
+    def from_file(cls, path, offset=None, shape=None, internal_path=None, ftype=None, **kwargs):
         """
         Instantiate a DataViewer from a path to a file in a variety of formats.
 
@@ -104,14 +104,14 @@ class DataViewer(object):
         ----------
         path : str or PathLike
             Path to dataset file
-        internal_path : str, optional
-            For dataset file types which need it, an internal path to the dataset
         ftype : {'n5', 'h5', 'hdf', 'hdf5', 'zarr', 'npy', 'npz', 'json', 'tif', 'tiff'}, optional
             File type. By default, infer from path extension.
         offset : array-like, optional
             Offset of ROI from (0, 0, 0). By default, start at (0, 0, 0)
         shape : array-like, optional
             Shape of ROI. By default, take the whole array.
+        internal_path : str, optional
+            For dataset file types which need it, an internal path to the dataset
         kwargs
             Passed to DataViewer constructor after ``volume``
 
@@ -119,5 +119,5 @@ class DataViewer(object):
         -------
         DataViewer
         """
-        vol = FileReader(path, internal_path=internal_path, offset=offset, shape=shape, ftype=ftype).read()
+        vol = FileReader(path, offset=offset, shape=shape, internal_path=internal_path).read(ftype)
         return DataViewer(vol, **kwargs)
