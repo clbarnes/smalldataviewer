@@ -49,7 +49,7 @@ def _main():
     logging.basicConfig(level=level)
 
     dv = DataViewer.from_file(
-        parsed_args.path, parsed_args.internal_path, parsed_args.type,
+        path=parsed_args.path, internal_path=parsed_args.internal_path, ftype=parsed_args.type,
         offset=parsed_args.offset, shape=parsed_args.shape,
         data_order=parsed_args.order
     )
