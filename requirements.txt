@@ -1,6 +1,6 @@
 numpy==1.14.2
 matplotlib==2.2.0
-h5py==2.7.1
+h5py==2.9.0
 mock==2.0.0; python_version < "3.3"
 setuptools==39.0
 wheel==0.31
