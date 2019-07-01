@@ -7,7 +7,7 @@ wheel==0.31
 twine==1.11
 pytest==5.0.0
 tox==3.0
-pillow==5.0.0
+pillow==6.0.0
 imageio[fits,simpleitk]==2.5.0
 enum34==1.1.6; python_version < "3.4"
 futures==3.2.0; python_version < "3.2"
