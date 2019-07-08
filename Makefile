@@ -12,7 +12,7 @@ install-dev:
 	pip install -r requirements.txt && pip install -e .[full]
 
 test:
-	pytest
+	pytest -v
 
 test-all:
 	tox

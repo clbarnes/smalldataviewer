@@ -42,6 +42,7 @@ def _main():
 
     level = {
         None: logging.WARNING,
+        0: logging.WARNING,
         1: logging.INFO,
         2: logging.DEBUG,
     }.get(parsed_args.verbose, logging.NOTSET)
@@ -57,5 +58,4 @@ def _main():
 
 
 if __name__ == '__main__':
-    logging.basicConfig()
     _main()
