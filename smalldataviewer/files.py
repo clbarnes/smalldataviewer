@@ -117,12 +117,12 @@ class FileReader:
 
     @check_internal_path(True)
     def _read_n5(self):
-        with z5py.File(self.path, False) as f:  # todo: add file mode when supported
+        with z5py.N5File(self.path, mode="r") as f:
             return np.asarray(f[self.internal_path][self.slicing])
 
     @check_internal_path(True)
     def _read_zarr(self):
-        with z5py.File(self.path, True) as f:  # todo: add file mode when supported
+        with z5py.ZarrFile(self.path, mode="r") as f:
             return np.asarray(f[self.internal_path][self.slicing])
 
     @check_internal_path(True)
