@@ -29,7 +29,7 @@ def array():
 @pytest.fixture
 def padded_array(array):
     padded = np.ones(shape=PADDED_SHAPE, dtype=np.uint8) * PAD_VALUE
-    slices = [slice(o, o+s) for o, s in zip(OFFSET, SHAPE)]
+    slices = tuple(slice(o, o+s) for o, s in zip(OFFSET, SHAPE))
     padded[slices] = array
     return padded
 
