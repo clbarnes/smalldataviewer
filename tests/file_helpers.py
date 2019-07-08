@@ -1,37 +1,11 @@
 import json
 import warnings
 
-import pytest
-try:
-    from unittest import mock
-except ImportError:
-    import mock
-
 import numpy as np
-from smalldataviewer.ext import h5py, z5py, imageio, NoSuchModule
+import pytest
 
-
-OFFSET = (10, 10, 10)
-SHAPE = (20, 20, 20)
-PADDED_SHAPE = tuple(s + o*2 for s, o in zip(SHAPE, OFFSET))
-
-PAD_VALUE = 1
-
-INTERNAL_PATH = 'volume'
-
-
-@pytest.fixture
-def array():
-    np.random.seed(1)
-    return np.random.randint(PAD_VALUE+1, 256, SHAPE, dtype=np.uint8)
-
-
-@pytest.fixture
-def padded_array(array):
-    padded = np.ones(shape=PADDED_SHAPE, dtype=np.uint8) * PAD_VALUE
-    slices = tuple(slice(o, o+s) for o, s in zip(OFFSET, SHAPE))
-    padded[slices] = array
-    return padded
+from smalldataviewer.ext import h5py, NoSuchModule, z5py, imageio
+from tests.constants import INTERNAL_PATH
 
 
 def hdf5_file(path, array):
@@ -117,17 +91,3 @@ file_constructors = [
     # ('dcm', imageio_mim_file),  # imageio cannot write
     ('swf', imageio_mim_file),
 ]
-
-
-@pytest.fixture(params=file_constructors, ids=lambda pair: pair[0])
-def data_file(request, tmpdir, padded_array):
-    ext, fn = request.param
-    path = str(tmpdir.join('data.' + ext))
-    requires_internal = fn(path, padded_array)
-    return path, requires_internal
-
-
-@pytest.fixture
-def subplots_patch():
-    with mock.patch('matplotlib.pyplot.subplots', return_value=(mock.Mock(), mock.Mock())) as sp_mock:
-        yield sp_mock

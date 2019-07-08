@@ -3,8 +3,6 @@ import pytest
 
 from smalldataviewer.viewer import DataViewer
 
-from tests.common import array, subplots_patch
-
 
 def test_can_instantiate(array, subplots_patch):
     dv = DataViewer(array)

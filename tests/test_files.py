@@ -10,7 +10,7 @@ except ImportError:
 from smalldataviewer import DataViewer
 from smalldataviewer.files import offset_shape_to_slicing, FileReader, NORMALISED_TYPES
 
-from tests.common import (INTERNAL_PATH, OFFSET, SHAPE, data_file, array, padded_array, subplots_patch)
+from .constants import OFFSET, SHAPE, INTERNAL_PATH
 
 
 @pytest.mark.parametrize('offset,shape,expected', [
