@@ -11,22 +11,22 @@ import numpy as np
 
 from smalldataviewer.ext import h5py, z5py, imageio
 
-__all__ = ['FileReader']
+__all__ = ["FileReader"]
 
 
 logger = logging.getLogger(__name__)
 
 
 NORMALISED_TYPES = {
-    'n5': 'n5',
-    'hdf': 'hdf5',
-    'h5': 'hdf5',
-    'hdf5': 'hdf5',
-    'zarr': 'zarr',
-    'zr': 'zarr',
-    'npy': 'npy',
-    'npz': 'npz',
-    'json': 'json',
+    "n5": "n5",
+    "hdf": "hdf5",
+    "h5": "hdf5",
+    "hdf5": "hdf5",
+    "zarr": "zarr",
+    "zr": "zarr",
+    "npy": "npy",
+    "npz": "npz",
+    "json": "json",
 }
 
 
@@ -35,13 +35,17 @@ def check_internal_path(has_ipath):
         @functools.wraps(fn)
         def wrapped(obj, *args, **kwargs):
             if has_ipath and obj.internal_path is None:
-                raise ValueError('internal_path required by this file format')
+                raise ValueError("internal_path required by this file format")
             if not has_ipath and obj.internal_path is not None:
                 warnings.warn(
-                    'internal_path not required by this file format: {} will be ignored'.format(check_internal_path)
+                    "internal_path not required by this file format: {} will be ignored".format(
+                        check_internal_path
+                    )
                 )
             return fn(obj, *args, **kwargs)
+
         return wrapped
+
     return decorator
 
 
@@ -87,7 +91,7 @@ class FileReader:
 
     def _parse_ftype(self, ftype=None):
         ftype = ftype or os.path.splitext(str(self.path))[1]
-        return NORMALISED_TYPES.get(ftype.lstrip('.').lower())
+        return NORMALISED_TYPES.get(ftype.lstrip(".").lower())
 
     def read(self, ftype=None):
         """
@@ -98,12 +102,12 @@ class FileReader:
         """
         if ftype:
             if ftype in NORMALISED_TYPES:
-                return getattr(self, '_read_' + NORMALISED_TYPES[ftype])()
+                return getattr(self, "_read_" + NORMALISED_TYPES[ftype])()
             else:
                 return self._read_imageio(ftype)
         else:
             if self.ftype:
-                return getattr(self, '_read_' + self.ftype)()
+                return getattr(self, "_read_" + self.ftype)()
             else:
                 return self._read_imageio()
 
@@ -131,7 +135,7 @@ class FileReader:
 
     @check_internal_path(True)
     def _read_hdf5(self):
-        with h5py.File(self.path, mode='r') as f:
+        with h5py.File(self.path, mode="r") as f:
             return np.asarray(f[self.internal_path][self.slicing])
 
     @check_internal_path(True)
@@ -141,7 +145,11 @@ class FileReader:
 
     @check_internal_path(False)
     def _read_imageio(self, ftype=None):
-        slicing = tuple(slice(None, None) for _ in range(3)) if self.slicing == Ellipsis else self.slicing
+        slicing = (
+            tuple(slice(None, None) for _ in range(3))
+            if self.slicing == Ellipsis
+            else self.slicing
+        )
         zmin, zmax = slicing[0].start or 0, slicing[0].stop
         reader = imageio.get_reader(self.path, format=ftype)
 

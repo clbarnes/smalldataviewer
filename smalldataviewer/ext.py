@@ -8,9 +8,9 @@ from importlib import import_module
 logger = logging.getLogger(__name__)
 
 
-EXTRAS = ['h5py', 'z5py', 'PIL', 'imageio']
+EXTRAS = ["h5py", "z5py", "PIL", "imageio"]
 
-__all__ = ['NoSuchModule'] + EXTRAS
+__all__ = ["NoSuchModule"] + EXTRAS
 
 
 class NoSuchModule(object):
@@ -29,7 +29,7 @@ class NoSuchModule(object):
 def import_if_available(name, namespace):
     try:
         with warnings.catch_warnings(record=True):
-            warnings.filterwarnings('ignore', '.*issubdtype')
+            warnings.filterwarnings("ignore", ".*issubdtype")
             module = import_module(name)
     except ImportError as e:
         module = NoSuchModule(name)
