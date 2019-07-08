@@ -62,7 +62,7 @@ def offset_shape_to_slicing(offset=None, shape=None):
 
 
 class FileReader:
-    def __init__(self, path, offset=None, shape=None, internal_path=None):
+    def __init__(self, path, offset=None, shape=None, internal_path=None, ftype=None):
         """
         A class which can read a variety of volumetric data formats.
 
@@ -83,7 +83,11 @@ class FileReader:
         self.slicing = offset_shape_to_slicing(offset, shape)
         self.internal_path = internal_path
 
-        self.ftype = NORMALISED_TYPES.get(os.path.splitext(str(path))[1].lstrip('.').lower())
+        self.ftype = self._parse_ftype(ftype)
+
+    def _parse_ftype(self, ftype=None):
+        ftype = ftype or os.path.splitext(str(self.path))[1]
+        return NORMALISED_TYPES.get(ftype.lstrip('.').lower())
 
     def read(self, ftype=None):
         """
