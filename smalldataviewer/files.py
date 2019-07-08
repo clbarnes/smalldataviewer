@@ -141,7 +141,7 @@ class FileReader:
 
     @check_internal_path(False)
     def _read_imageio(self, ftype=None):
-        slicing = [slice(None, None) for _ in range(3)] if self.slicing == Ellipsis else self.slicing
+        slicing = tuple(slice(None, None) for _ in range(3)) if self.slicing == Ellipsis else self.slicing
         zmin, zmax = slicing[0].start or 0, slicing[0].stop
         reader = imageio.get_reader(self.path, format=ftype)
 
