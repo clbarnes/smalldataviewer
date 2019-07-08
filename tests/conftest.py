@@ -3,8 +3,8 @@ from unittest import mock
 import numpy as np
 import pytest
 
-from tests.constants import PAD_VALUE, SHAPE, PADDED_SHAPE, OFFSET
-from tests.file_helpers import file_constructors
+from .constants import PAD_VALUE, SHAPE, PADDED_SHAPE, OFFSET, TEST_DIR, PROJECT_DIR
+from .file_helpers import file_constructors
 
 
 @pytest.fixture
@@ -33,3 +33,21 @@ def data_file(request, tmpdir, padded_array):
 def subplots_patch():
     with mock.patch('matplotlib.pyplot.subplots', return_value=(mock.Mock(), mock.Mock())) as sp_mock:
         yield sp_mock
+
+
+@pytest.fixture
+def data_dir():
+    dpath = TEST_DIR / "data"
+    if not dpath.is_dir():
+        rel_path = dpath.relative_to(PROJECT_DIR)
+        pytest.fail("Test data directory at '{}' required but not found: run `make data`".format(rel_path))
+    return dpath
+
+
+@pytest.fixture
+def data_tif(data_dir):
+    fpath = data_dir / "data.tif"
+    if not fpath.is_file():
+        rel_path = fpath.relative_to(PROJECT_DIR)
+        pytest.fail("Test data at '{}' required but not found: run `make data`".format(rel_path))
+    return fpath
