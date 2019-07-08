@@ -16,7 +16,7 @@ def array():
 @pytest.fixture
 def padded_array(array):
     padded = np.ones(shape=PADDED_SHAPE, dtype=np.uint8) * PAD_VALUE
-    slices = tuple(slice(o, o+s) for o, s in zip(OFFSET, SHAPE))
+    slices = tuple(slice(o, o + s) for o, s in zip(OFFSET, SHAPE))
     padded[slices] = array
     return padded
 
@@ -24,14 +24,16 @@ def padded_array(array):
 @pytest.fixture(params=file_constructors, ids=lambda pair: pair[0])
 def data_file(request, tmpdir, padded_array):
     ext, fn = request.param
-    path = str(tmpdir.join('data.' + ext))
+    path = str(tmpdir.join("data." + ext))
     requires_internal = fn(path, padded_array)
     return path, requires_internal
 
 
 @pytest.fixture
 def subplots_patch():
-    with mock.patch('matplotlib.pyplot.subplots', return_value=(mock.Mock(), mock.Mock())) as sp_mock:
+    with mock.patch(
+        "matplotlib.pyplot.subplots", return_value=(mock.Mock(), mock.Mock())
+    ) as sp_mock:
         yield sp_mock
 
 
@@ -40,7 +42,11 @@ def data_dir():
     dpath = TEST_DIR / "data"
     if not dpath.is_dir():
         rel_path = dpath.relative_to(PROJECT_DIR)
-        pytest.fail("Test data directory at '{}' required but not found: run `make data`".format(rel_path))
+        pytest.fail(
+            "Test data directory at '{}' required but not found: run `make data`".format(
+                rel_path
+            )
+        )
     return dpath
 
 
@@ -49,5 +55,7 @@ def data_tif(data_dir):
     fpath = data_dir / "data.tif"
     if not fpath.is_file():
         rel_path = fpath.relative_to(PROJECT_DIR)
-        pytest.fail("Test data at '{}' required but not found: run `make data`".format(rel_path))
+        pytest.fail(
+            "Test data at '{}' required but not found: run `make data`".format(rel_path)
+        )
     return fpath
