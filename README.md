@@ -42,16 +42,17 @@ The `DataViewer` opens a `matplotlib` figure of the data volume.
 
 Available as a command-line utility at `smalldataviewer` or `sdv`
 
-```
-usage: smalldataviewer [-h] [-i INTERNAL_PATH] [-t TYPE] [-o ORDER]
-                       [-f OFFSET] [-s SHAPE] [-v]
-                       path
+```help
+usage: sdv [-h] [--version] [-i INTERNAL_PATH] [-t TYPE] [-o ORDER]
+           [-f OFFSET] [-s SHAPE] [-v]
+           path
 
 positional arguments:
   path                  Path to file containing a 3D dataset
 
 optional arguments:
   -h, --help            show this help message and exit
+  --version             Print version information and exit
   -i INTERNAL_PATH, --internal_path INTERNAL_PATH
                         Internal path of dataset inside HDF5, N5, zarr or npz
                         file. If JSON, assumes the outer object is a dict, and
