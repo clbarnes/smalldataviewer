@@ -3,8 +3,6 @@ dist: xenial
 python:
 - '3.7'
 - '3.6'
-- '3.5'
-- '2.7'
 install:
 - make install-dev
 before_script:
