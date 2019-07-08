@@ -150,7 +150,7 @@ class FileReader:
 
             subframe = frame[slicing[1:]]
             tiles.append(np.asarray(subframe))
-        return np.array(tiles)
+        return np.array(tuple(tiles))
 
     def _read_json(self):
         with open(self.path) as f:
