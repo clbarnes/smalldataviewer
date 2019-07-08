@@ -1,2 +1,3 @@
-__version_info__ = (0, 5, 0, 'dev')
-__version__ = '.'.join(str(item) for item in __version_info__[:-1]) + __version_info__[-1]
+# allow bumpversion to manage this (see `make version-*` recipes)
+__version__ = "0.8.1"
+__version_info__ = tuple(int(i) for i in __version__.split("."))

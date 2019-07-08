@@ -1,20 +1,20 @@
-from __future__ import print_function
 import sys
 import logging
 import traceback
+import warnings
 from importlib import import_module
 
 logger = logging.getLogger(__name__)
 
 
-EXTRAS = ['h5py', 'z5py', 'PIL', 'tifffile']
+EXTRAS = ["h5py", "z5py", "PIL", "imageio"]
 
-__all__ = ['NoSuchModule'] + EXTRAS
+__all__ = ["NoSuchModule"] + EXTRAS
 
 
 class NoSuchModule(object):
     def __init__(self, name):
-        logger.warning('Module {} is not accessible, some features may be unavailable'.format(name))
+        # logger.warning('Module {} is not accessible, some features may be unavailable'.format(name))
         self.__name = name
         self.__traceback_str = traceback.format_tb(sys.exc_info()[2])
         errtype, value = sys.exc_info()[:2]
@@ -27,7 +27,9 @@ class NoSuchModule(object):
 
 def import_if_available(name, namespace):
     try:
-        module = import_module(name)
+        with warnings.catch_warnings(record=True):
+            warnings.filterwarnings("ignore", ".*issubdtype")
+            module = import_module(name)
     except ImportError as e:
         module = NoSuchModule(name)
 

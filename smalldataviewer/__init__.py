@@ -1,5 +1,5 @@
 from smalldataviewer.version import __version__, __version_info__
-from smalldataviewer.files import read_file
+from smalldataviewer.files import FileReader
 from smalldataviewer.viewer import DataViewer
 
-__all__ = ['read_file', 'DataViewer']
+__all__ = ["FileReader", "DataViewer"]

@@ -1,21 +1,19 @@
 #!/usr/bin/env python
 """Adapted from https://matplotlib.org/gallery/animation/image_slices_viewer.html"""
 
-from __future__ import division
-
 import logging
 
 import matplotlib.pyplot as plt
-from smalldataviewer.files import read_file
+from smalldataviewer.files import FileReader
 
-__all__ = ['DataViewer']
+__all__ = ["DataViewer"]
 
 
 logger = logging.getLogger(__name__)
 
 
 class DataViewer(object):
-    def __init__(self, volume, data_order='zyx', cmap=None, **kwargs):
+    def __init__(self, volume, data_order="zyx", cmap=None, **kwargs):
         """
         Class used to view a dataset with 3 spatial dimensions as image slices. The dimension 0 will be scrolled
         through, dimension 1 will on the up-down axis, dimension 2 will be on the left-right axis, and dimension 3 will
@@ -35,38 +33,48 @@ class DataViewer(object):
         kwargs
             Passed to ``matplotlib.pyplot.imshow``.
         """
-        logger.debug('Volume of shape {} and type {} received'.format(volume.shape, type(volume).__name__))
+        logger.debug(
+            "Volume of shape {} and type {} received".format(
+                volume.shape, type(volume).__name__
+            )
+        )
 
-        if not all(dim in data_order for dim in 'zyx'):
-            raise ValueError('Data order must include z, y and x dimensions')
+        if not all(dim in data_order for dim in "zyx"):
+            raise ValueError("Data order must include z, y and x dimensions")
 
         try:
             self.volume = volume.transposeToNumpyOrder()
-            logger.info('Transposing VigraArray to numpy order, ignoring data_order argument')
-            data_order = 'zyx'
+            logger.info(
+                "Transposing VigraArray to numpy order, ignoring data_order argument"
+            )
+            data_order = "zyx"
         except AttributeError:
             self.volume = volume
 
         self.slices = self.volume.shape[0]
         self.idx = 0
-        self.title_formatstr = '{} = {{}} (last = {})'.format(data_order[0], self.slices - 1)
+        self.title_formatstr = "{} = {{}} (last = {})".format(
+            data_order[0], self.slices - 1
+        )
 
         if self.volume.ndim == 2:
-            raise ValueError('Data is 2D: just use plt.imshow')
+            raise ValueError("Data is 2D: just use plt.imshow")
         elif self.volume.ndim == 3:
-            cmap = cmap or 'gray'
+            cmap = cmap or "gray"
         elif self.volume.ndim == 4:
             if self.volume.shape[-1] > 4:
-                raise ValueError('Data has >4 colour channels, cannot display')
+                raise ValueError("Data has >4 colour channels, cannot display")
         else:
-            raise ValueError('Data has more than 4 dimensions including colour channels, cannot display')
+            raise ValueError(
+                "Data has more than 4 dimensions including colour channels, cannot display"
+            )
 
         self.fig, self.ax = plt.subplots(1, 1)
         self.im = self.ax.imshow(self._slice, cmap=cmap, **kwargs)
         self.ax.set_ylabel(data_order[1])
         self.ax.set_xlabel(data_order[2])
         self._update()
-        self.fig.canvas.mpl_connect('scroll_event', self._onscroll)
+        self.fig.canvas.mpl_connect("scroll_event", self._onscroll)
 
     def show(self):
         """Show the viewer. Note that the viewer will no longer scroll if the script ends: use ``plt.show`` for that"""
@@ -74,11 +82,11 @@ class DataViewer(object):
 
     def _onscroll(self, event):
         step = 1
-        if event.button == 'up' and self.idx < self.slices - 1:
-            logger.debug('Scrolling forward by %s', step)
+        if event.button == "up" and self.idx < self.slices - 1:
+            logger.debug("Scrolling forward by %s", step)
             self.idx += step
-        elif event.button == 'down' and self.idx > 0:
-            logger.debug('Scrolling back by %s', step)
+        elif event.button == "down" and self.idx > 0:
+            logger.debug("Scrolling back by %s", step)
             self.idx -= step
         else:
             return
@@ -94,7 +102,9 @@ class DataViewer(object):
         self.im.axes.figure.canvas.draw()
 
     @classmethod
-    def from_file(cls, path, internal_path=None, ftype=None, offset=None, shape=None, **kwargs):
+    def from_file(
+        cls, path, offset=None, shape=None, internal_path=None, ftype=None, **kwargs
+    ):
         """
         Instantiate a DataViewer from a path to a file in a variety of formats.
 
@@ -104,14 +114,14 @@ class DataViewer(object):
         ----------
         path : str or PathLike
             Path to dataset file
-        internal_path : str, optional
-            For dataset file types which need it, an internal path to the dataset
         ftype : {'n5', 'h5', 'hdf', 'hdf5', 'zarr', 'npy', 'npz', 'json', 'tif', 'tiff'}, optional
             File type. By default, infer from path extension.
         offset : array-like, optional
             Offset of ROI from (0, 0, 0). By default, start at (0, 0, 0)
         shape : array-like, optional
             Shape of ROI. By default, take the whole array.
+        internal_path : str, optional
+            For dataset file types which need it, an internal path to the dataset
         kwargs
             Passed to DataViewer constructor after ``volume``
 
@@ -119,5 +129,7 @@ class DataViewer(object):
         -------
         DataViewer
         """
-        vol = read_file(path, internal_path=internal_path, offset=offset, shape=shape, ftype=ftype)
+        vol = FileReader(
+            path, offset=offset, shape=shape, internal_path=internal_path
+        ).read(ftype)
         return DataViewer(vol, **kwargs)

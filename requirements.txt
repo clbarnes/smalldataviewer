@@ -1,10 +1,14 @@
-numpy==1.14.2
-matplotlib==2.2.0
-h5py==2.7.1
+numpy==1.16.4
+matplotlib==3.1.1
+h5py==2.9.0
 mock==2.0.0; python_version < "3.3"
-wheel
-twine
-pytest
-tox
-pillow==5.0.0
-tifffile==0.14.0
+setuptools==41.0.1
+twine==1.13.0
+wheel==0.33.4
+pytest==5.0.1
+tox==3.13.2
+pillow==6.1.0
+imageio[fits,itk]==2.5.0
+enum34==1.1.6; python_version < "3.4"
+futures==3.2.0; python_version < "3.2"
+bumpversion==0.5.3
