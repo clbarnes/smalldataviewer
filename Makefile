@@ -2,6 +2,8 @@ module = smalldataviewer
 version_file = $(module)/version.py
 current_version := $(shell grep -Po "\d+\.\d+\.\d+" $(version_file))
 
+DATA_DIR = tests/data
+
 install:
 	pip install .
 
@@ -17,7 +19,7 @@ test:
 test-all:
 	tox
 
-clean: clean-build clean-pyc clean-test
+clean: clean-build clean-pyc clean-test clean-data
 
 clean-build: ## remove build artifacts
 	rm -f MANIFEST
@@ -37,6 +39,9 @@ clean-test:
 	rm -rf .pytest_cache
 	rm -rf .tox
 
+clean-data:
+	rm -rf $(DATA_DIR)
+
 dist: clean ## builds source and wheel package
 	python setup.py sdist
 	python setup.py bdist_wheel
@@ -53,3 +58,11 @@ version-major:
 
 release: dist ## package and upload a release
 	twine upload dist/*
+
+$(DATA_DIR)/data.tif:
+	mkdir -p $(DATA_DIR) && \
+	wget -P $(DATA_DIR) https://imagej.nih.gov/ij/images/t1-head-raw.zip && \
+	unzip $(DATA_DIR)/t1-head-raw.zip -d $(DATA_DIR) && \
+	mv $(DATA_DIR)/JeffT1_le.tif $(DATA_DIR)/data.tif
+
+data: $(DATA_DIR)/data.tif
