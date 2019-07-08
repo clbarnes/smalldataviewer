@@ -14,7 +14,7 @@ extras_require = {
     'hdf5': ['h5py>=2.0'],
     'img': ['imageio>=2.3'],
     'fits': ['imageio[fits]>=2.3'],
-    'itk': ['imageio[simpleitk]>=2.3'],
+    'itk': ['imageio[itk]>=2.3'],
     # 'n5': ['z5py'],  # n.b. must be installed with conda
     # 'zarr': ['z5py'],  # n.b. must be installed with conda
 }
@@ -30,9 +30,7 @@ setup(
     license='MIT',
     install_requires=[
         'numpy>=1.7.1',
-        'matplotlib>=2.0'
-        'enum34>=1.1; python_version < "3.4"',  # todo: remove with https://github.com/imageio/imageio/pull/337
-        'futures>=3.2; python_version < "3.2"',  # todo: remove with https://github.com/imageio/imageio/pull/337
+        'matplotlib>=3.0',
     ],
     extras_require=extras_require,
     author='Chris L Barnes',
@@ -50,11 +48,9 @@ setup(
         'Development Status :: 4 - Beta',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 2.7',
     ],
     keywords='image volume 3d hdf5 n5 zarr',
-    python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*'
+    python_requires='>=3.6.*'
 )
