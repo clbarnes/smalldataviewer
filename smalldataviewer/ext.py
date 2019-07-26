@@ -7,7 +7,7 @@ from importlib import import_module
 logger = logging.getLogger(__name__)
 
 
-EXTRAS = ["h5py", "z5py", "PIL", "imageio"]
+EXTRAS = ["h5py", "z5py", "pyn5", "PIL", "imageio"]
 
 __all__ = ["NoSuchModule"] + EXTRAS
 
@@ -23,6 +23,9 @@ class NoSuchModule(object):
     def __getattr__(self, item):
         print(self.__traceback_str, file=sys.stderr)
         raise self.__exception
+
+    def __bool__(self):
+        return False
 
 
 def import_if_available(name, namespace):

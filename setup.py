@@ -20,7 +20,7 @@ extras_require = {
 }
 
 full_requires = set(chain.from_iterable(extras_require.values()))
-extras_require['full'] = sorted(full_requires)
+extras_require['all'] = sorted(full_requires)
 
 setup(
     name='smalldataviewer',
@@ -31,6 +31,7 @@ setup(
     install_requires=[
         'numpy>=1.7.1',
         'matplotlib>=3.0',
+        'mpl_colors',
     ],
     extras_require=extras_require,
     author='Chris L Barnes',

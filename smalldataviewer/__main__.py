@@ -1,6 +1,7 @@
 import logging
 
 from matplotlib import pyplot as plt
+from mpl_colors import LabelColorMap
 
 from smalldataviewer import DataViewer, __version__
 
@@ -59,6 +60,10 @@ def _main():
     parser.add_argument(
         "-v", "--verbose", action="count", help="Increase logging verbosity"
     )
+    parser.add_argument(
+        "-l", "--label", action="store_true",
+        help="Whether to treat images as a label volume"
+    )
 
     parsed_args = parser.parse_args()
 
@@ -78,6 +83,7 @@ def _main():
         offset=parsed_args.offset,
         shape=parsed_args.shape,
         data_order=parsed_args.order,
+        cmap=LabelColorMap(8916) if parsed_args.label else None
     )
     plt.show()
 

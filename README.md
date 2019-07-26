@@ -16,10 +16,10 @@ Adapted from [this matplotlib recipe](https://matplotlib.org/gallery/animation/i
 ## Installation
 
 ```bash
-pip install smalldataviewer[full]
+pip install smalldataviewer[all]
 ```
 
-The `full` installation includes all of these optional extras:
+The `all` installation includes all of these optional extras:
 
 - `hdf5`: HDF5 file support via [h5py](http://docs.h5py.org/en/latest/build.html)
 - `img`: volumetric and animated images via [imageio](https://imageio.readthedocs.io)
@@ -43,9 +43,9 @@ The `DataViewer` opens a `matplotlib` figure of the data volume.
 Available as a command-line utility at `smalldataviewer` or `sdv`
 
 ```help
-usage: sdv [-h] [--version] [-i INTERNAL_PATH] [-t TYPE] [-o ORDER]
-           [-f OFFSET] [-s SHAPE] [-v]
-           path
+usage: smalldataviewer [-h] [--version] [-i INTERNAL_PATH] [-t TYPE]
+                       [-o ORDER] [-f OFFSET] [-s SHAPE] [-v] [-l]
+                       path
 
 positional arguments:
   path                  Path to file containing a 3D dataset
@@ -73,6 +73,7 @@ optional arguments:
                         3D shape of ROI in pixels, in the form
                         "<scroll>,<vertical>,<horizontal>"
   -v, --verbose         Increase logging verbosity
+  -l, --label           Whether to treat images as a label volume
 ```
 
 e.g.

@@ -12,6 +12,11 @@ __all__ = ["DataViewer"]
 logger = logging.getLogger(__name__)
 
 
+class NullColorMap:
+    def __call__(self, arg):
+        return arg
+
+
 class DataViewer(object):
     def __init__(self, volume, data_order="zyx", cmap=None, **kwargs):
         """
@@ -60,8 +65,12 @@ class DataViewer(object):
         if self.volume.ndim == 2:
             raise ValueError("Data is 2D: just use plt.imshow")
         elif self.volume.ndim == 3:
-            cmap = cmap or "gray"
+            if cmap is None:
+                cmap = "gray"
+            if isinstance(cmap, str):
+                cmap = plt.get_cmap(cmap)
         elif self.volume.ndim == 4:
+            cmap = NullColorMap()
             if self.volume.shape[-1] > 4:
                 raise ValueError("Data has >4 colour channels, cannot display")
         else:
@@ -70,7 +79,8 @@ class DataViewer(object):
             )
 
         self.fig, self.ax = plt.subplots(1, 1)
-        self.im = self.ax.imshow(self._slice, cmap=cmap, **kwargs)
+        self.cmap = cmap
+        self.im = self.ax.imshow(self.cmap(self._slice), **kwargs)
         self.ax.set_ylabel(data_order[1])
         self.ax.set_xlabel(data_order[2])
         self._update()
@@ -97,7 +107,7 @@ class DataViewer(object):
         return self.volume[self.idx, ...]
 
     def _update(self):
-        self.im.set_data(self._slice)
+        self.im.set_data(self.cmap(self._slice))
         self.ax.set_title(self.title_formatstr.format(self.idx))
         self.im.axes.figure.canvas.draw()
 

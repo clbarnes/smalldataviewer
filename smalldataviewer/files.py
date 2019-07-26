@@ -6,7 +6,7 @@ import warnings
 
 import numpy as np
 
-from smalldataviewer.ext import h5py, z5py, imageio
+from smalldataviewer.ext import h5py, z5py, imageio, pyn5
 
 __all__ = ["FileReader"]
 
@@ -122,7 +122,14 @@ class FileReader:
 
     @check_internal_path(True)
     def _read_n5(self):
-        with z5py.N5File(self.path, mode="r") as f:
+        if z5py:
+            cls = z5py.N5File
+        elif pyn5:
+            cls = pyn5.File
+        else:
+            cls = z5py.N5File
+
+        with cls(self.path, mode="r") as f:
             return np.asarray(f[self.internal_path][self.slicing])
 
     @check_internal_path(True)
