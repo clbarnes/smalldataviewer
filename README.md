@@ -9,6 +9,7 @@ helpful for debugging. Supports python 2.7 and 3.4+.
 
 Adapted from [this matplotlib recipe](https://matplotlib.org/gallery/animation/image_slices_viewer.html).
 
+For more complicated and/or higher-performance usage, try [napari](https://github.com/napari/napari).
 
 ![Small ssTEM Volume](https://media.giphy.com/media/fWggPcSFuQH0ZTAHKG/giphy.gif)
 
