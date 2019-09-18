@@ -3,7 +3,7 @@ matplotlib==3.1.1
 h5py==2.10.0
 mock==2.0.0; python_version < "3.3"
 setuptools==41.2.0
-twine==1.14.0
+twine==1.15.0
 wheel==0.33.6
 pytest==5.1.2
 tox==3.14.0
