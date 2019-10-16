@@ -11,9 +11,6 @@ Adapted from [this matplotlib recipe](https://matplotlib.org/gallery/animation/i
 
 For more complicated and/or higher-performance usage, try [napari](https://github.com/napari/napari).
 
-![Small ssTEM Volume](https://media.giphy.com/media/fWggPcSFuQH0ZTAHKG/giphy.gif)
-
-
 ## Installation
 
 ```bash
