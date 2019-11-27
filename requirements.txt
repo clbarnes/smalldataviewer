@@ -2,7 +2,7 @@ numpy==1.17.4
 matplotlib==3.1.2
 h5py==2.10.0
 mock==2.0.0; python_version < "3.3"
-setuptools==41.6.0
+setuptools==42.0.1
 twine==3.1.0
 wheel==0.33.6
 pytest==5.3.1
