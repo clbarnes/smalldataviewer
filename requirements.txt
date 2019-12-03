@@ -6,7 +6,7 @@ setuptools==42.0.2
 twine==3.1.1
 wheel==0.33.6
 pytest==5.3.1
-tox==3.14.1
+tox==3.14.2
 pillow==6.2.1
 imageio[fits,itk]==2.6.1
 enum34==1.1.6; python_version < "3.4"
