@@ -11,5 +11,5 @@ pillow==7.1.2
 imageio[fits,itk]==2.8.0
 enum34==1.1.6; python_version < "3.4"
 futures==3.2.0; python_version < "3.2"
-bumpversion==0.5.3
+bumpversion==0.6.0
 mpl_colors==0.2.0
